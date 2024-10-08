@@ -1,0 +1,22 @@
+services:
+  battlestats:
+    container_name: battlestats
+    build: .
+    ports:
+      - 8082:5000 # web
+
+  db:
+    container_name: battlestats-sql
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: battlestats
+    volumes:
+      - sql:/var/lib/mysql
+
+
+volumes:
+  sql:
+
+    
+    
