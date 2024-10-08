@@ -7,7 +7,7 @@ services:
 
   db:
     container_name: battlestats-sql
-    image: mysql
+    image: mysql:latest
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: battlestats
