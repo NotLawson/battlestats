@@ -1,9 +1,9 @@
 services:
-  battlestats:
-    container_name: battlestats
-    build: .
-    ports:
-      - 8082:5000 # web
+#  battlestats:
+#    container_name: battlestats
+#    build: .
+#    ports:
+#      - 8082:5000 # web
 
   db:
     container_name: battlestats-sql
@@ -14,9 +14,26 @@ services:
     volumes:
       - sql:/var/lib/mysql
 
+  influxdb:
+    container_name: battlestats-influx
+    image: influxdb:2
+    ports:
+      - 8086:8086
+    volumes:
+      - influx-data:/var/lib/influxdb2
+      - influx-config:/etc/influxdb2
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=battlestats
+      - DOCKER_INFLUXDB_INIT_PASSWORD=battlestats
+      - DOCKER_INFLUXDB_INIT_ORG=battlestats
+      - DOCKER_INFLUXDB_INIT_BUCKET=stats
+
+
 
 volumes:
   sql:
-
+  influx-data:
+  influx-config:
     
     

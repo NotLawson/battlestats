@@ -2,6 +2,36 @@ from flask import Flask, render_template, request
 from gql import gql, Client
 from gql.transport.aiohttp import AIOHTTPTransport
 import json
+import mysql.connector
+
+db = mysql.connector.connect(
+  host="db",
+  user="root",
+  password="battlestats"
+)
+
+class Database:
+    def __init__(self, database):
+        self.connector = mysql.connector.connect(
+            host="db",
+            user="root",
+            password="battlestats",
+            database="database"
+        )
+    def query(self, query):
+        cursor = self.connector.cursor()
+        cursor.execute(query)
+        return cursor
+    
+    def close(self):
+        self.connector.disconnect()
+
+
+def save_playerdata(playerdata):
+    db = Database("playerdata")
+    # todo
+
+
 
 
 app = Flask(__name__)
@@ -81,8 +111,10 @@ def index():
 }""")
         print(data)
         result = client.execute(data)
+        playerdata = PlayerData(result)
+        save_playerdata(playerdata)
 
-        return render_template("index.html", playerdata = PlayerData(result))
+        return render_template("index.html", playerdata = playerdata)
     return render_template("index.html")
 
 
