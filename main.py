@@ -3,7 +3,6 @@ from gql import gql, Client
 from gql.transport.websockets import WebsocketsTransport
 import json, os
 from datetime import datetime
-datetime()
 import mysql.connector
 import influxdb_client
 from influxdb_client import InfluxDBClient, Point, WritePrecision
