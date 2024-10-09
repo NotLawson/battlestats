@@ -1,9 +1,11 @@
 services:
-#  battlestats:
-#    container_name: battlestats
-#    build: .
-#    ports:
-#      - 8082:5000 # web
+  battlestats:
+    container_name: battlestats
+    build: .
+    environment:
+      - INFLUXDB_TOKEN=token
+    ports:
+      - 8082:5000 # web
 
   db:
     container_name: battlestats-sql

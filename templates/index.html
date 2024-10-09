@@ -2,6 +2,13 @@
     <head>
         <title>BattleStats</title>
         <link href="/static/main.css" rel="stylesheet">
+        <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
+        </script>
+        {% if playerdata %}
+        <script>let shortid = {{playerdata.shortid}}</script>
+        <script src="/static/charts.js" defer></script>
+        {% endif %}
     </head>
     <body>
         <div class="main">
@@ -26,6 +33,13 @@
                 <p>Longest Win Streak: {{playerdata.longest_ws}}</p>
                 <br>
                 <p>Total Turns Taken: {{playerdata.turns}}</p>
+                <h3>Graphs</h3>
+                <p>Winstreak</p>
+                <canvas id="winstreak" style="width:100%;max-width:700px"></canvas>
+                <p>Winrate</p>
+                <canvas id="winrate" style="width:100%;max-width:700px"></canvas>
+                <p>Trophies</p>
+                <canvas id="trophies" style="width:100%;max-width:700px"></canvas>
             </div>
             {% endif %}
         </div>
