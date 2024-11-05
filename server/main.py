@@ -8,6 +8,7 @@ import influxdb_client
 from influxdb_client import InfluxDBClient, Point, WritePrecision
 from influxdb_client.client.write_api import SYNCHRONOUS
 
+'''
 influx_token = os.environ.get("INFLUXDB_TOKEN")
 
 org = "battlestats"
@@ -37,12 +38,12 @@ def save_playerdata(playerdata):
     influx_write.write("winrate", "battlestats", Point("winrate").tag("shortid", playerdata.shortid).field("value", playerdata.wr))
     influx_write.write("winstreak", "battlestats", Point("winstreak").tag("shortid", playerdata.shortid).field("value", playerdata.current_winstreak))
     influx_write.write("trophies", "battlestats", Point("trophies").tag("shortid", playerdata.shortid).field("value", playerdata.trophies))
-
+'''
 
 
 
 app = Flask(__name__)
-API = "https://battletabs.fly.dev/graphql"
+API = "wss://battletabs.fly.dev/graphql"
 
 
 # Select your transport with a defined url endpoint
@@ -128,7 +129,7 @@ def index():
         print(data)
         result = client.execute(data)
         playerdata = PlayerData(result)
-        save_playerdata(playerdata)
+        #save_playerdata(playerdata)
 
         return render_template("index.html", playerdata = playerdata)
     return render_template("index.html")
