@@ -1,0 +1,20 @@
+services:
+  app:
+    build: .
+    restart: always
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./battles:/usr/app/db/battles
+  
+  influx:
+    image: influxdb:2
+    volumes:
+      - ./influx/lib:/var/lib/influxdb2
+      - ./influx/config:/etc/influxdb2
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=admin
+      - DOCKER_INFLUXDB_INIT_ORG=battlestats
+      - DOCKER_INFLUXDB_INIT_BUCKET=league
