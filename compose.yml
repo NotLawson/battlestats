@@ -9,7 +9,7 @@ services:
   
   influx:
     image: influxdb:2
-    host: influx
+    hostname: influx
     volumes:
       - ./influx/lib:/var/lib/influxdb2
       - ./influx/config:/etc/influxdb2
@@ -22,7 +22,7 @@ services:
 
   redis:
     image: redis:6
-    host: redis
+    hostname: redis
     volumes:
       - ./redis/data:/data
     restart: always
