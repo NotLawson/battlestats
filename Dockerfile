@@ -1,9 +1,9 @@
-FROM node:lts
+FROM python:3
 
 WORKDIR /usr/app
 
 COPY . .
 
-RUN npm install
+RUN pip install -r requirements.txt
 
-CMD ["npm", "start"]
+CMD ["python3", "main.py"]

@@ -18,3 +18,10 @@ services:
       - DOCKER_INFLUXDB_INIT_PASSWORD=admin
       - DOCKER_INFLUXDB_INIT_ORG=battlestats
       - DOCKER_INFLUXDB_INIT_BUCKET=league
+
+  redis:
+    image: redis:6
+    volumes:
+      - ./redis/data:/data
+    restart: always
+    command: redis-server --save 60 1 --loglevel warning
