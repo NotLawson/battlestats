@@ -44,7 +44,8 @@ def signup():
             try:
                 userdb.set(username, auth.User(username, password, authtoken))
                 token = auth.login(username, password)
-            except:
+            except Exception as e:
+                print(e)
                 return render_template('signup.html', message="Invalid BattleTabs token")
             
             return redirect('/', 302).set_cookie('token', token)
