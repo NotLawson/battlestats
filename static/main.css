@@ -1,0 +1,13 @@
+h1, h2, h3, a, p, li {
+    font-family: sans-serif;
+}
+body {
+    margin: 10px 15px 20px 25px;;
+
+}
+
+.log {
+    border: dotted, black, 5px;
+    border-radius: 10px;
+    padding: 10px;
+}

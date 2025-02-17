@@ -1,0 +1,52 @@
+{
+    "id": "PjY0NBX6Xq",
+    "kind": "player-responded-to-turn",
+    "createdAt": 1732231873590,
+    "responses": [
+      {
+        "id": "lhi3ouNIsr",
+        "cell": {
+          "player": "9bc7c7e7-1ceb-48b0-a000-1928cb6154e8",
+          "position": {
+            "x": 3,
+            "y": 4
+          }
+        },
+        "kind": "default-attack-used",
+        "children": [
+          {
+            "id": "rijd9jkjti",
+            "cell": {
+              "player": "9bc7c7e7-1ceb-48b0-a000-1928cb6154e8",
+              "position": {
+                "x": 3,
+                "y": 4
+              }
+            },
+            "kind": "cell-attacked",
+            "children": [
+              {
+                "id": "hEcFa-y82s",
+                "cell": {
+                  "player": "9bc7c7e7-1ceb-48b0-a000-1928cb6154e8",
+                  "position": {
+                    "x": 3,
+                    "y": 4
+                  }
+                },
+                "kind": "cell-attack-missed",
+                "children": []
+              }
+            ]
+          },
+          {
+            "id": "RiLQRB4rLT",
+            "kind": "player-turn-ended",
+            "player": "de2341ce-6828-4f87-9390-1feea9f02681",
+            "children": []
+          }
+        ]
+      }
+    ],
+    "respondingUserId": "9bc7c7e7-1ceb-48b0-a000-1928cb6154e8"
+  }

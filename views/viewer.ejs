@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="/main.css">
+        <title>Viewer</title>
+    </head>
+    <body>
+        <h1>Replay Viewer</h1>
+        <p>Players:</p>
+        <ul>
+            <li><%= data.battle.players[0].name %> (<%= data.battle.players[0].id %>)</li>
+            <li><%= data.battle.players[1].name %> (<%= data.battle.players[1].id %>)</li>
+        </ul>
+        <p>Winner: <%= data.battle.winner.name %></p>
+        <br>
+        <p>Events:</p>
+        
+        <ul class = "log">
+        <% var ships = []%>
+        <% data.battle.events.forEach(function(event) { %>
+        <% if (event.kind==="battle-created") { %>
+            <li>Battle Created!</li>
+        
+        <% } else if (event.kind==="player-joined") { %>
+        <% var id = event.userId; %>
+        <% if (id===data.battle.players[0].id) {var name = data.battle.players[0].name} else if (id===data.battle.players[1].id) {var name = data.battle.players[1].name} else {var name = "Error: name not found for unknown reason"}; %>
+            <li><%=name%> joined the game</li>
+        
+        <% } else if (event.kind==="maps-set") { %>
+            <li>Map Set</li>
+        
+        <% } else if (event.kind==="fleet-chosen-v2") { %>
+        <% var id = event.byUserId; %>
+        <% if (event.fleet.kind==="starting_fleet") {var fleetName = event.fleet.definitionId;} else if (event.fleet.kind==="custom") {var fleetName = event.fleet.name;} %>
+        <% if (id===data.battle.players[0].id) {var name = data.battle.players[0].name} else if (id===data.battle.players[1].id) {var name = data.battle.players[1].name} else {var name = "Error: name not found for unknown reason"}; %>
+            <li><%= name %> has chosen the fleet '<%=fleetName%>'</li>
+        <% } else if (event.kind==="ships-placed") { %>
+            <li>Ships placed</li>
+            <% ships.push(event.ships)%>
+        
+        <% } else if (event.kind==="battle-started") { %>
+            <% ships = {...ships[0], ...ships[1]}%>
+            <% console.log(JSON.stringify(ships))%>
+            <li>Battle Started!</li>
+        
+        <% } else if (event.kind==="player-took-turn") { %>
+        <% var id = event.fromUserId; %>
+        <% if (id===data.battle.players[0].id) {var name = data.battle.players[0].name} else if (id===data.battle.players[1].id) {var name = data.battle.players[1].name} else {var name = "Error: name not found for unknown reason"}; %>
+            <li><%= name %> attacked</li>
+                <ul>
+                <% event.actions.forEach(function(action) { %>
+                    <% if (action.kind==="default-attack") { %>
+                    <li>Shot at (<%= action.atPosition.x %>, <%= action.atPosition.y %>)</li>
+                    <% } else if (action.kind==="use-ship-ability") { %>
+                    <% if (action.params.kind==="targeted") { %>
+                    <li>Used Ability (ship: <%= ships[action.shipId].shipDefinitionId %>), targeted at (<%= action.params.position.x %>, <%= action.params.position.y %>), rotation <%= action.params.rotation %></li>
+                    <% } else { %>
+                    <li>Used Ability (ship: <%= ships[action.shipId].shipDefinitionId %>), uknown type (<code><%=JSON.stringify(action)%></code></li>
+                <% }}}) %>
+                </ul>
+        
+        <% } else if (event.kind==="player-responded-to-turn") { %>
+            <li>==Server Response==</li>
+                <ul>
+                <% event.responses.forEach(function(action) { %>
+                    <% if (action.kind==="default-attack-used") { %>
+                    <li>Used default attack</li>
+                        <ul>
+                            <% action.children.forEach(function(child) { %>
+                            <% if (child.kind==="cell-attacked") { %>
+                            <li>Shot at (<%= child.cell.position.x %>, <%= child.cell.position.y %>)</li>
+                                <ul>
+                                <% child.children.forEach(function(subchild) {%>
+                                <% if (subchild.kind==="cell-attack-missed") {var shot="Miss"} else if (subchild.kind==="ship-hit") {var shot="Hit"} else if (subchild.kind==="ship-sunk") {var shot="Ship "+ships[subchild.ship].shipDefinitionId+" sunk"} %>
+                                <li><%= shot %></li>
+                                <% }) %>
+                                </ul>
+                            <% }}) %>
+                        </ul>
+                    <% } else if (action.kind==="ship-ability-used") { %>
+                    <li>Used Ability (ship: <%= ships[action.ship].shipDefinitionId %>)</li>
+                        <ul>
+                            <% action.children.forEach(function(child) { %>
+                            <% if (child.kind==="cell-attacked") { %>
+                            <li>Shot at (<%= child.cell.position.x %>, <%= child.cell.position.y %>)</li>
+                                <ul>
+                                <% child.children.forEach(function(subchild) {%>
+                                <% if (subchild.kind==="cell-attack-missed") {var shot="Miss"} else if (subchild.kind==="ship-hit") {var shot="Hit"} else if (subchild.kind==="ship-sunk") {var shot="Ship "+ships[subchild.ship].shipDefinitionId+" sunk"} %>
+                                <li><%= shot %></li>
+                                <% }) %>
+                                </ul>
+                            <% }}) %>
+                        </ul>
+                    <% } else if (action.kind==="player-turn-ended"){ %>
+                    <li>Player Turn Ended</li>
+                    <% }}) %>
+                </ul>
+
+        <% } else if (event.kind==="battle-finished") { %>
+            <li>Battle Finished!</li>
+        <% } else { %>
+            <li>Unknown event: <%= event.kind %></li>
+        <% } %>
+        <% }) %>
+    </body>
+</html>
