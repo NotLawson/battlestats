@@ -1,6 +1,6 @@
 # auth module
 from modules.battletabs import BattleTabsClient
-from __main__ import usersdb
+from __main__ import userdb
 import random
 
 TOKENS = {}
@@ -74,7 +74,7 @@ class User:
         return self.client.query("{customFleets {name\nslotIndex\nships {definitionId\nskinId}}}")
     
 def login(username, password):
-    user = usersdb.get(username)
+    user = userdb.get(username)
     if user==None:
         return "invalidusername"
     
