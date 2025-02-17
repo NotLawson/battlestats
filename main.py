@@ -10,7 +10,7 @@ userdb = redis.Redis(host='redis', port=6379, db=0, decode_responses=True)
 # Import submodules in order
 from modules import battletabs
 from modules import auth
-from modules import player, battles
+#from modules import player, battles
 
 @app.route('/')
 def index():
