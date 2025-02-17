@@ -3,7 +3,7 @@ services:
     build: .
     restart: always
     ports:
-      - "3000:3000"
+      - 7300:3000
     volumes:
       - ./battles:/usr/app/db/battles
   
