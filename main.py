@@ -3,7 +3,7 @@ import db as db_lib
 import redis
 
 app = Flask(__name__)
-leaguedb = db_lib.League()
+#leaguedb = db_lib.League()
 userdb = redis.Redis(host='redis', port=6379, db=0, decode_responses=True)
 
 
