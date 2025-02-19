@@ -37,6 +37,7 @@ class User:
         self.btName = info["me"]["name"]
         self.email = info["me"]["email"]
         self.id = info["me"]["id"]
+        self.disconnect()
 
 
     def connect(self):
