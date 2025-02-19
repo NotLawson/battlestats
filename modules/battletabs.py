@@ -1,6 +1,7 @@
 # Library for interacting with the battletabs GraphQL API
 from gql import gql, Client
 from gql.transport.websockets import WebsocketsTransport
+as
 
 API = "wss://battletabs.fly.dev/graphql"
 
@@ -18,9 +19,9 @@ class BattleTabsClient:
         self.client = Client(transport=self.transport, fetch_schema_from_transport=True)
     
     def query(self, query):
-        return self.client.execute(gql(query))
+        return self.client.execute_sync(gql(query))
     def mutate(self, mutation):
-        return self.client.execute(gql(mutation))
+        return self.client.execute_sync(gql(mutation))
     
     def get_user(self, user):
         query = """{

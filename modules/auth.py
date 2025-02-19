@@ -26,7 +26,7 @@ def generate_token(username):
     return token
 
 class User:
-    def __init__(self, username, password, auth_token):
+    async def __init__(self, username, password, auth_token):
         self.username = username
         self.password = password
         self.token = auth_token
@@ -39,7 +39,7 @@ class User:
     def get_self(self):
         return self.get_client().query("{me {name\nemail\nid}}")
     
-    def get_stats(self):
+    async def get_stats(self):
         stats = self.get_client().query("{me {stats {wins\nlosses}\nenhancedStats}}")
         return {
             "wins":stats["me"]["stats"]["wins"],
