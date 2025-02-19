@@ -30,27 +30,12 @@ class User:
         self.username = username
         self.password = password
         self.token = auth_token
-        self.client = BattleTabsClient(self.token)
-
-        info = self.get_self()
-        print(info)
-        self.btName = info["me"]["name"]
-        self.email = info["me"]["email"]
-        self.id = info["me"]["id"]
-        self.disconnect()
-
-
-    def connect(self):
-        self.client.client.transport.connect()
-    
-    def disconnect(self):
-        self.client.client.transport.close()
 
     def get_self(self):
-        return self.client.query("{me {name\nemail\nid}}")
+        return self.get_client().query("{me {name\nemail\nid}}")
     
     def get_stats(self):
-        stats = self.client.query("{me {stats {wins\nlosses}\nenhancedStats}}")
+        stats = self.get_client().query("{me {stats {wins\nlosses}\nenhancedStats}}")
         return {
             "wins":stats["me"]["stats"]["wins"],
             "losses":stats["me"]["stats"]["losses"],
@@ -59,20 +44,24 @@ class User:
         }
     
     def get_league(self):
-        league = self.client.query("{myLeagueProgress {trophies\ndiamonds}}")
+        league = self.get_client().query("{myLeagueProgress {trophies\ndiamonds}}")
         return {
             "trophies":league["myLeagueProgress"]["trophies"],
             "diamonds":league["myLeagueProgress"]["diamonds"]
         }
     
     def get_avatar_inventory(self):
-        return self.client.query("{avatarParts {definitionId}}")
+        return self.get_client().query("{avatarParts {definitionId}}")
     
     def get_medals(self):
-        return self.client.query('''{medals(userId: "'''+self.id+'''") {definitionId}}''')
+        return self.get_client().query('''{medals(userId: "'''+self.id+'''") {definitionId}}''')
     
     def get_fleets(self):
-        return self.client.query("{customFleets {name\nslotIndex\nships {definitionId\nskinId}}}")
+
+        return self.get_client().query("{customFleets {name\nslotIndex\nships {definitionId\nskinId}}}")
+    
+    def get_client(self):
+        return BattleTabsClient(self.token)
     
 def login(username, password):
     user = userdb.get(username)

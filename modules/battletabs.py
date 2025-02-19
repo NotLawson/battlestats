@@ -5,7 +5,7 @@ from gql.transport.websockets import WebsocketsTransport
 API = "wss://battletabs.fly.dev/graphql"
 
 class BattleTabsClient:
-    def __init__(self, auth_token):
+    def __init__(self, auth_token, transport):
         init_payload = {
             "authToken": auth_token,
             "client-version": "55.3.0.3965",
@@ -15,6 +15,7 @@ class BattleTabsClient:
             "deviceId": "21498e65-d9a8-4663-a94c-2d6b939eeb51"
         }
         self.transport = WebsocketsTransport(url=API, init_payload=init_payload)
+        self.transport = transport
         self.client = Client(transport=self.transport, fetch_schema_from_transport=True)
     
     def query(self, query):
