@@ -1,5 +1,5 @@
 # auth module
-from modules.battletabs import BattleTabsClient
+from modules.battletabs import SelfDestructClient
 from __main__ import userdb
 import random
 
@@ -31,6 +31,11 @@ class User:
         self.password = password
         self.token = auth_token
 
+        info = self.get_self()
+        self.id = info["me"]["id"]
+        self.name = info["me"]["name"]
+        self.email = info["me"]["email"]
+
     def get_self(self):
         return self.get_client().query("{me {name\nemail\nid}}")
     
@@ -61,7 +66,7 @@ class User:
         return self.get_client().query("{customFleets {name\nslotIndex\nships {definitionId\nskinId}}}")
     
     def get_client(self):
-        return BattleTabsClient(self.token)
+        return SelfDestructClient(self.token)
     
 def login(username, password):
     user = userdb.get(username)
