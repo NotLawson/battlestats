@@ -41,12 +41,12 @@ def signup():
         if userdb.get(username)!=None:
             message = "Username already exists"
         else:
-            try:
+            #try:
                 userdb.set(username, auth.User(username, password, authtoken))
                 token = auth.login(username, password)
-            except Exception as e:
-                print(e)
-                return render_template('signup.html', message="Invalid BattleTabs token")
+            #except Exception as e:
+            #    print(e)
+            #    return render_template('signup.html', message="Invalid BattleTabs token")
             
             return redirect('/', 302).set_cookie('token', token)
         return render_template('signup.html', message=message)
