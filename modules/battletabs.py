@@ -1,7 +1,7 @@
 # Library for interacting with the battletabs GraphQL API
 from gql import gql, Client
 from gql.transport.websockets import WebsocketsTransport
-as
+
 
 API = "wss://battletabs.fly.dev/graphql"
 
