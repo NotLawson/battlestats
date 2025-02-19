@@ -48,7 +48,7 @@ def signup():
             #    print(e)
             #    return render_template('signup.html', message="Invalid BattleTabs token")
             
-            return redirect('/', 302).set_cookie('token', token)
+                return redirect('/', 302).set_cookie('token', token)
         return render_template('signup.html', message=message)
     return render_template('signup.html')
 
