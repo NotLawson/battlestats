@@ -1,10 +1,10 @@
 from flask import Flask, render_template, request, redirect
-import db as db_lib
-import redis
+import db
+
 
 app = Flask(__name__)
 #leaguedb = db_lib.League()
-userdb = redis.Redis(host='redis', port=6379, db=0, decode_responses=True)
+userdb = db.UserDB()
 
 
 # Import submodules in order
