@@ -26,7 +26,7 @@ def index():
         return render_template('index.html', title="BattleStats")
     user = userdb.get(username)
     user.sync()
-    userdb.put(username, user)
+    userdb.set(username, user)
     return render_template('home.html', user=user, title="BS: Home", round=round, int=int, json=json)
 
 @app.route('/login', methods=['GET','POST'])
