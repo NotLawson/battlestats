@@ -22,9 +22,9 @@ from modules import battles
 @app.route('/')
 def index():
     username = auth.auth(request.cookies.get('token'))
-    user = userdb.get(username)
-    if user==None:
+    if username==None:
         return render_template('index.html', title="BattleStats")
+    user = userdb.get(username)
     return render_template('home.html', user=user, title="BS: Home", round=round, int=int, json=json)
 
 @app.route('/login', methods=['GET','POST'])
