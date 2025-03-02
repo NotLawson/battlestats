@@ -1,5 +1,5 @@
 # auth module
-from modules.battletabs import SelfDestructClient
+from modules.battletabs import BattleTabsClient
 from __main__ import userdb
 import random
 
@@ -30,6 +30,7 @@ class User:
         self.username = username
         self.password = password
         self.token = auth_token
+        self.client = BattleTabsClient(auth_token)
 
         info = self.get_self()
         self.id = info["me"]["id"]
@@ -37,10 +38,10 @@ class User:
         self.email = info["me"]["email"]
 
     def get_self(self):
-        return self.get_client().query("{me {name\nemail\nid}}")
+        return self.client.query("{me {name\nemail\nid}}")
     
     async def get_stats(self):
-        stats = self.get_client().query("{me {stats {wins\nlosses}\nenhancedStats}}")
+        stats = self.client.query("{me {stats {wins\nlosses}\nenhancedStats}}")
         return {
             "wins":stats["me"]["stats"]["wins"],
             "losses":stats["me"]["stats"]["losses"],
@@ -49,24 +50,21 @@ class User:
         }
     
     def get_league(self):
-        league = self.get_client().query("{myLeagueProgress {trophies\ndiamonds}}")
+        league = self.client.query("{myLeagueProgress {trophies\ndiamonds}}")
         return {
             "trophies":league["myLeagueProgress"]["trophies"],
             "diamonds":league["myLeagueProgress"]["diamonds"]
         }
     
     def get_avatar_inventory(self):
-        return self.get_client().query("{avatarParts {definitionId}}")
+        return self.client.query("{avatarParts {definitionId}}")
     
     def get_medals(self):
-        return self.get_client().query('''{medals(userId: "'''+self.id+'''") {definitionId}}''')
+        return self.client.query('''{medals(userId: "'''+self.id+'''") {definitionId}}''')
     
     def get_fleets(self):
 
-        return self.get_client().query("{customFleets {name\nslotIndex\nships {definitionId\nskinId}}}")
-    
-    def get_client(self):
-        return SelfDestructClient(self.token)
+        return self.client.query("{customFleets {name\nslotIndex\nships {definitionId\nskinId}}}")
     
 def login(username, password):
     user = userdb.get(username)

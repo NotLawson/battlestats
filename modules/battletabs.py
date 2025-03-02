@@ -1,21 +1,17 @@
 # Library for interacting with the battletabs GraphQL API
 from gql import gql, Client
 from gql.transport.websockets import WebsocketsTransport
+from gql.transport.requests import RequestsHTTPTransport
 
 
 API = "wss://battletabs.fly.dev/graphql"
 
 class BattleTabsClient:
     def __init__(self, auth_token):
-        init_payload = {
-            "authToken": auth_token,
-            "client-version": "55.3.0.3965",
-            "platform": "web",
-            "platformSubKind": "web",
-            "iframeParent": "https://battletabs.io",
-            "deviceId": "21498e65-d9a8-4663-a94c-2d6b939eeb51"
+        headers = {
+            "Authorization": "Bearer "+auth_token
         }
-        self.transport = WebsocketsTransport(url=API, init_payload=init_payload)
+        self.transport = RequestsHTTPTransport(url=API, headers=headers, use_json=True)
         self.client = Client(transport=self.transport, fetch_schema_from_transport=True)
     
     def query(self, query):
@@ -41,10 +37,3 @@ user(username: '"""+user+"""') {
 	enhancedStats
 	}} """
         return self.query(query)
-
-
-class SelfDestructClient(BattleTabsClient):
-    async def query(self, query):
-        q = super().query(query)
-        await self.transport.close()
-        return q
