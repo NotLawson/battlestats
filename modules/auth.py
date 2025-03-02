@@ -23,7 +23,7 @@ def generate_token(username):
                     break
             if not taken:
                 break
-    TOKENS.update({username:token})
+    TOKENS.update({"username":username, "token":token})
     return token
 
 class User:

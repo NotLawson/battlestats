@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, make_response
 import modules.db as db
 
 
@@ -34,7 +34,9 @@ def login():
         elif token=="invalidpassword":
             message = "Invalid password"
         else:
-            return redirect('/', 302).set_cookie('token', token)
+            resp = make_response(redirect('/', 302))
+            resp.set_cookie('token', token)
+            return resp
         return render_template('login.html', message=message)
     return render_template('login.html')
 
@@ -53,8 +55,9 @@ def signup():
             #except Exception as e:
             #    print(e)
             #    return render_template('signup.html', message="Invalid BattleTabs token")
-    
-                return redirect('/', 302).set_cookie('token', token)
+                resp = make_response(redirect('/', 302))
+                resp.set_cookie('token', token)
+                return resp
         return render_template('signup.html', message=message)
     return render_template('signup.html')
 
