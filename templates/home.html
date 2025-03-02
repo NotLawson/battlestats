@@ -19,23 +19,32 @@
         <p>Trophies: {{ league["trophies"] }}</p>
         <p>Diamonds: {{ league["diamonds"] }}</p>
 
-        <h3>Avatar Inventory (raw)</h3>
-        <code>
-            <pre>
-                {{ user.get_avatar_inventory() }}
-            </pre>
-        </code>
+        <h3>Avatar Inventory</h3>
+        {% set inventory = user.get_avatar_inventory() %}
+        <ul>
+        {% for part in inventory["avatarParts"] %}
+                <li>{{ part["definitionId"] }}</li>
+        {% endfor %}
+        </ul>
+
         <h3>Medals (raw)</h3>
-        <code>
-            <pre>
-                {{ user.get_medals() }}
-            </pre>
-        </code>
+        {% set medals = user.get_medals() %}
+        <ul>
+        {% for medal in medals["medals"] %}
+                <li>{{ medal["definitionId"] }}</li>
+        {% endfor %}
+        </ul>
+
         <h3>Fleets (raw)</h3>
-        <code>
-            <pre>
-                {{ user.get_fleets() }}
-            </pre>
-        </code>
+        {% set fleets = user.get_fleets() %}
+        
+        {% for fleet in fleets["customFleets"] %}
+                <h4>{{ fleet["name"] }}</h4>
+                <ul>
+                {% for ship in fleet["ships"] %}
+                        <li>{{ ship["definitionId"] }}</li>
+                {% endfor %}
+                </ul>
+        {% endfor %}
 
 {% endblock %}

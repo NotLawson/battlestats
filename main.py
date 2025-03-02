@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, make_response
 import modules.db as db
+import json
 
 
 app = Flask(__name__)
@@ -24,7 +25,7 @@ def index():
     user = userdb.get(username)
     if user==None:
         return render_template('index.html', title="BattleStats")
-    return render_template('home.html', user=user, title="BS: Home", round=round, int=int)
+    return render_template('home.html', user=user, title="BS: Home", round=round, int=int, json=json)
 
 @app.route('/login', methods=['GET','POST'])
 def login():
