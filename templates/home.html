@@ -1,0 +1,41 @@
+{% extends "main.html" %}
+
+{% block content %}
+
+        <h1>Home</h1>
+        <h2>Hello, {{ user.name }}</h2>
+        <p>Email: {{ user.email }}</p>
+        <p>ID: {{ <user class="id"></user> }}</p>
+        <h3>Stats</h3>
+        {% set stats = user.get_stats() %}
+        <p>Wins: {{ stats['wins'] }}</p>
+        <p>Losses: {{ stats['losses'] }}</p>
+        <p>Win Rate: {{ round(int(stats['wins']) / (int(stats["wins"])+int(stats["losses"])), 0) }}%</p>
+        <p>Current Win Streak: {{ stats["currentStreak"] }}</p>
+        <p>Longest Win Streak: {{ stats["longestStreak"] }}</p>
+
+        <h3>League</h3>
+        {% set league = user.get_league() %}
+        <p>Trophies: {{ league["trophies"] }}</p>
+        <p>Diamonds: {{ league["diamonds"] }}</p>
+
+        <h3>Avatar Inventory (raw)</h3>
+        <code>
+            <pre>
+                {{ user.get_avatar_inventory() }}
+            </pre>
+        </code>
+        <h3>Medals (raw)</h3>
+        <code>
+            <pre>
+                {{ user.get_medals() }}
+            </pre>
+        </code>
+        <h3>Fleets (raw)</h3>
+        <code>
+            <pre>
+                {{ user.get_fleets() }}
+            </pre>
+        </code>
+
+{% endblock %}

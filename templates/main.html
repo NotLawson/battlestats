@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{{ title }}</title>
+        <link rel="stylesheet" type="text/css" href="/static/main.css">
+        <link rel="stylesheet" type="text/css" href="/static/navbar.css">
+        {% block imports %}
+        {% endblock %}
+    </head>
+    <body>
+        <div class="sitenav">
+            <span>
+            <input class="title" type="button" value="BattleStats">
+            <input class="sitenav_button" type="button" value="Home" onclick="window.location.href='/'">
+            <input class="sitenav_button" type="button" value="Me" onclick="window.location.href='/me'">
+            <input class="sitenav_button" type="button" value="Players" onclick="window.location.href='/players'">  
+            <input class="sitenav_button" type="button" value="Battles" onclick="window.location.href='/battles'">
+            </span>
+        </div>
+        <br>
+        <article>
+            {% block content %}
+            {% endblock %}
+        </article>
+    </body>
+</html>

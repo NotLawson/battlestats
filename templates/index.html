@@ -1,12 +1,7 @@
-<html>
-    <head>
-        <title>BattleStats Home</title>
-    </head>
-    <body>
+{% extends "main.html" %}
+{% block content %}
         <h1>BattleStats</h1>
         <p>Welcome to BattleStats! BattleStats is a web application that allows you to track your progress in the game BattleTabs. To get started, please sign up or log in.</p>
         <a href="/signup">Sign Up</a>
         <a href="/login">Login</a>
-        <p>Current user: {{username}}</p>
-    </body>
-</html>
+{% endblock %}

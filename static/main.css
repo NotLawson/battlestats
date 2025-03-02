@@ -1,13 +1,19 @@
-h1, h2, h3, a, p, li {
-    font-family: sans-serif;
-}
+/* CSS for the main page */
 body {
-    margin: 10px 15px 20px 25px;;
-
+    font-family: Arial, sans-serif;
+    padding: 0%;
+    margin: 0%;
+    text-align: center;
+}
+article {
+    padding-left: 20%;
+    padding-right: 20%;
 }
 
-.log {
-    border: dotted, black, 5px;
-    border-radius: 10px;
-    padding: 10px;
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 5px;
 }

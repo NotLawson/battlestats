@@ -21,7 +21,10 @@ from modules import battles
 @app.route('/')
 def index():
     username = auth.auth(request.cookies.get('token'))
-    return render_template('index.html', username=username)
+    user = userdb.get(username)
+    if user==None:
+        return render_template('index.html', title="BattleStats")
+    return render_template('home.html', user=user, title="BS: Home", round=round, int=int)
 
 @app.route('/login', methods=['GET','POST'])
 def login():
@@ -37,8 +40,8 @@ def login():
             resp = make_response(redirect('/', 302))
             resp.set_cookie('token', token)
             return resp
-        return render_template('login.html', message=message)
-    return render_template('login.html')
+        return render_template('login.html', message=message, title="BS: Login")
+    return render_template('login.html', title="BS: Login")
 
 @app.route('/signup', methods=['GET','POST'])
 def signup():
@@ -58,8 +61,8 @@ def signup():
                 resp = make_response(redirect('/', 302))
                 resp.set_cookie('token', token)
                 return resp
-        return render_template('signup.html', message=message)
-    return render_template('signup.html')
+        return render_template('signup.html', message=message, title="BS: Signup")
+    return render_template('signup.html', title="BS: Signup")
 
 
 
