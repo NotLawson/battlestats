@@ -111,7 +111,7 @@ class UserDB(db.DB):
         super().__init__("users")
 
     def set(self, key, value):
-        self.redis.set(key, json.dumps(dict(value)))
+        self.redis.set(key, json.dumps(value.__dict__()))
     
     def get(self, key):
         resp = self.redis.get(key)
