@@ -66,6 +66,16 @@ class User:
 
         return self.client.query("{customFleets {name\nslotIndex\nships {definitionId\nskinId}}}")
     
+    def __dict__(self):
+        return {
+            "username":self.username,
+            "password":self.password,
+            "token":self.token,
+            "id":self.id,
+            "name":self.name,
+            "email":self.email
+        }
+    
 def login(username, password):
     user = userdb.get(username)
     if user==None:
@@ -82,3 +92,13 @@ def auth(token):
             username = TOKENS[i]["username"]
             return username
     return None
+
+class UserFromDict(User):
+    def __init__(self, userdict):
+        self.username = userdict["username"]
+        self.password = userdict["password"]
+        self.token = userdict["token"]
+        self.client = BattleTabsClient(userdict["token"])
+        self.id = userdict["id"]
+        self.name = userdict["name"]
+        self.email = userdict["email"]

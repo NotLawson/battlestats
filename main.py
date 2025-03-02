@@ -1,9 +1,9 @@
 from flask import Flask, render_template, request, redirect
-import db
+import modules.db as db
 
 
 app = Flask(__name__)
-userdb = db.DB("users")
+userdb = db.UserDB()
 battledb = db.DB("battles")
 #fleetdb = db.DB("fleets") # not implemented
 from modules import battletabs
