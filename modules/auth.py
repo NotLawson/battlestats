@@ -18,12 +18,12 @@ def generate_token(username):
                 token+=random.choice(chars)
                 i+=1
             for i in TOKENS.keys():
-                if token==TOKENS[i]["token"]:
+                if token==TOKENS[i]:
                     taken = True
                     break
             if not taken:
                 break
-    TOKENS.update({"username":username, "token":token})
+    TOKENS.update({username:token})
     return token
 
 class User:
