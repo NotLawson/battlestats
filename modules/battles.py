@@ -1,4 +1,4 @@
-from __main__ import battlesdb, BTClient
+from __main__ import BTClient
 
 
 class Battle:
