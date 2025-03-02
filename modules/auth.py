@@ -90,8 +90,8 @@ def login(username, password):
 
 def auth(token):
     for i in TOKENS.keys():
-        if token == TOKENS[i]["token"]:
-            username = TOKENS[i]["username"]
+        if token == TOKENS[i]:
+            username = i
             return username
     return None
 
