@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, make_response
 import modules.db as db
 import json
+from queue import Queue
 
 
 app = Flask(__name__)
@@ -19,14 +20,17 @@ BTClient = battletabs.BattleTabsClientUnAuth()
 # Import submodules in order
 from modules import battles
 
+from modules import service
+main_queue = Queue()
+service.start(main_queue, 2)
+
 @app.route('/')
 def index():
     username = auth.auth(request.cookies.get('token'))
     if username==None:
         return render_template('index.html', title="BattleStats")
     user = userdb.get(username)
-    user.sync()
-    userdb.set(username, user)
+    main_queue.put({"type":"sync", "username":username})
     return render_template('home.html', user=user, title="BS: Home", round=round, int=int, json=json)
 
 @app.route('/login', methods=['GET','POST'])
