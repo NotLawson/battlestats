@@ -18,7 +18,6 @@
         <p>Diamonds: {{ user.league["diamonds"] }}</p>
 
         <h3>Avatar Inventory</h3>
-        {% set inventory = user.get_avatar_inventory() %}
         <ul>
         {% for part in user.inventory %}
                 <li>{{ part["definitionId"] }}</li>
