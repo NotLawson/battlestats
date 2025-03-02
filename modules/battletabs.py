@@ -4,7 +4,7 @@ from gql.transport.websockets import WebsocketsTransport
 from gql.transport.requests import RequestsHTTPTransport
 
 
-API = "wss://battletabs.fly.dev/graphql"
+API = "https://battletabs.fly.dev/graphql"
 
 class BattleTabsClient:
     def __init__(self, auth_token):
