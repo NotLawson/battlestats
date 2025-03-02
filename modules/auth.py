@@ -38,34 +38,32 @@ class User:
         self.name = info["me"]["name"]
         self.email = info["me"]["email"]
 
+        self.sync()
+
     def get_self(self):
         return self.client.query("{me {name\nemail\nid}}")
     
-    def get_stats(self):
-        stats = self.client.query("{me {stats {wins\nlosses}\nenhancedStats}}")
-        return {
-            "wins":stats["me"]["stats"]["wins"],
-            "losses":stats["me"]["stats"]["losses"],
-            "currentStreak":stats["me"]["enhancedStats"]["winningStreak"]["current"],
-            "longestStreak":stats["me"]["enhancedStats"]["winningStreak"]["longest"]
-        }
-    
-    def get_league(self):
-        league = self.client.query("{myLeagueProgress {trophies\ndiamonds}}")
-        return {
-            "trophies":league["myLeagueProgress"]["trophies"],
-            "diamonds":league["myLeagueProgress"]["diamonds"]
-        }
-    
-    def get_avatar_inventory(self):
-        return self.client.query("{avatarParts {definitionId}}")
-    
-    def get_medals(self):
-        return self.client.query('''{medals(userId: "'''+self.id+'''") {definitionId}}''')
-    
-    def get_fleets(self):
+    def sync(self):
+        q = '''{me {name email id stats {wins losses} enhancedStats} myLeagueProgress {trophies diamonds} avatarParts {definitionId} medals(userId: "'''+self.id+'''") {definitionId} customFleets {name slotIndex ships {definitionId skinId}}}'''
+        data = self.client.query(q)
 
-        return self.client.query("{customFleets {name\nslotIndex\nships {definitionId\nskinId}}}")
+        self.name = data["me"]["name"]
+
+        self.stats = {
+            "wins":data["me"]["stats"]["wins"],
+            "losses":data["me"]["stats"]["losses"],
+            "currentStreak":data["me"]["enhancedStats"]["winningStreak"]["current"],
+            "longestStreak":data["me"]["enhancedStats"]["winningStreak"]["longest"]
+        }
+
+        self.league = {
+            "trophies":data["myLeagueProgress"]["trophies"],
+            "diamonds":data["myLeagueProgress"]["diamonds"]
+        }
+
+        self.fleets = data["customFleets"]
+        self.inventory = data["avatarParts"]
+        self.medals = data["medals"]
     
     def __dict__(self):
         return {
@@ -104,6 +102,7 @@ class UserFromDict(User):
         self.id = userdict["id"]
         self.name = userdict["name"]
         self.email = userdict["email"]
+        self.sync()
 
 
 class UserDB(db.DB):

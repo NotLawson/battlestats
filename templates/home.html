@@ -7,38 +7,33 @@
         <p>Email: {{ user.email }}</p>
         <p>ID: {{ user.id }}</p>
         <h3>Stats</h3>
-        {% set stats = user.get_stats() %}
-        <p>Wins: {{ stats['wins'] }}</p>
-        <p>Losses: {{ stats['losses'] }}</p>
-        <p>Win Rate: {{ round(int(stats['wins']) / (int(stats["wins"])+int(stats["losses"])), 0) }}%</p>
-        <p>Current Win Streak: {{ stats["currentStreak"] }}</p>
-        <p>Longest Win Streak: {{ stats["longestStreak"] }}</p>
+        <p>Wins: {{ user.stats['wins'] }}</p>
+        <p>Losses: {{ user.stats['losses'] }}</p>
+        <p>Win Rate: {{ int(100*(int(user.stats['wins']) / (int(user.stats["wins"])+int(user.stats["losses"])))) }}%</p>
+        <p>Current Win Streak: {{ user.stats["currentStreak"] }}</p>
+        <p>Longest Win Streak: {{ user.stats["longestStreak"] }}</p>
 
         <h3>League</h3>
-        {% set league = user.get_league() %}
-        <p>Trophies: {{ league["trophies"] }}</p>
-        <p>Diamonds: {{ league["diamonds"] }}</p>
+        <p>Trophies: {{ user.league["trophies"] }}</p>
+        <p>Diamonds: {{ user.league["diamonds"] }}</p>
 
         <h3>Avatar Inventory</h3>
         {% set inventory = user.get_avatar_inventory() %}
         <ul>
-        {% for part in inventory["avatarParts"] %}
+        {% for part in user.inventory %}
                 <li>{{ part["definitionId"] }}</li>
         {% endfor %}
         </ul>
 
-        <h3>Medals (raw)</h3>
-        {% set medals = user.get_medals() %}
+        <h3>Medals</h3>
         <ul>
-        {% for medal in medals["medals"] %}
+        {% for medal in user.medals %}
                 <li>{{ medal["definitionId"] }}</li>
         {% endfor %}
         </ul>
 
-        <h3>Fleets (raw)</h3>
-        {% set fleets = user.get_fleets() %}
-        
-        {% for fleet in fleets["customFleets"] %}
+        <h3>Fleets</h3>
+        {% for fleet in user.fleets %}
                 <h4>{{ fleet["name"] }}</h4>
                 <ul>
                 {% for ship in fleet["ships"] %}
