@@ -5,7 +5,7 @@
         <h1>Home</h1>
         <h2>Hello, {{ user.name }}</h2>
         <p>Email: {{ user.email }}</p>
-        <p>ID: {{ <user class="id"></user> }}</p>
+        <p>ID: {{ user.id }}</p>
         <h3>Stats</h3>
         {% set stats = user.get_stats() %}
         <p>Wins: {{ stats['wins'] }}</p>
