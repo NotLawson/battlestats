@@ -1,5 +1,4 @@
 import redis, pickle, json
-from modules.auth import UserFromDict
 
 class DB:
     def __init__(self, host):
@@ -13,16 +12,3 @@ class DB:
     
     def set(self, key, value):
         self.redis.set(key, pickle.dumps(value))
-
-class UserDB(DB):
-    def __init__(self):
-        super().__init__("users")
-
-    def set(self, key, value):
-        self.redis.set(key, json.dumps(dict(value)))
-    
-    def get(self, key):
-        resp = self.redis.get(key)
-        if resp==None:
-            return None
-        return UserFromDict(json.loads(resp))

@@ -3,15 +3,19 @@ import modules.db as db
 
 
 app = Flask(__name__)
-userdb = db.UserDB()
+
+import modules.auth as auth
+from modules.auth import UserDB
+userdb = UserDB()
+
 battledb = db.DB("battles")
 #fleetdb = db.DB("fleets") # not implemented
+
 from modules import battletabs
 BTClient = battletabs.BattleTabsClientUnAuth()
 
 
 # Import submodules in order
-from modules import auth
 from modules import battles
 
 @app.route('/')

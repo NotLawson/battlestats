@@ -1,6 +1,7 @@
 # auth module
 from modules.battletabs import BattleTabsClient
-from __main__ import userdb
+import json
+from __main__ import db
 import random
 
 TOKENS = {}
@@ -77,6 +78,7 @@ class User:
         }
     
 def login(username, password):
+    from __main__ import userdb
     user = userdb.get(username)
     if user==None:
         return "invalidusername"
@@ -102,3 +104,17 @@ class UserFromDict(User):
         self.id = userdict["id"]
         self.name = userdict["name"]
         self.email = userdict["email"]
+
+
+class UserDB(db.DB):
+    def __init__(self):
+        super().__init__("users")
+
+    def set(self, key, value):
+        self.redis.set(key, json.dumps(dict(value)))
+    
+    def get(self, key):
+        resp = self.redis.get(key)
+        if resp==None:
+            return None
+        return UserFromDict(json.loads(resp))
