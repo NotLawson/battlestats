@@ -3,14 +3,16 @@ import db
 
 
 app = Flask(__name__)
-#leaguedb = db_lib.League()
-userdb = db.UserDB()
+userdb = db.DB("users")
+battledb = db.DB("battles")
+#fleetdb = db.DB("fleets") # not implemented
+BTClient = battletabs.BattleTabsClientUnAuth()
 
 
 # Import submodules in order
 from modules import battletabs
 from modules import auth
-#from modules import player, battles
+from modules import battles
 
 @app.route('/')
 def index():
@@ -47,10 +49,13 @@ def signup():
             #except Exception as e:
             #    print(e)
             #    return render_template('signup.html', message="Invalid BattleTabs token")
-            
+    
                 return redirect('/', 302).set_cookie('token', token)
         return render_template('signup.html', message=message)
     return render_template('signup.html')
+
+
+
 
 
 app.run("0.0.0.0", 3000, debug=True)

@@ -37,3 +37,8 @@ user(username: '"""+user+"""') {
 	enhancedStats
 	}} """
         return self.query(query)
+    
+class BattleTabsClientUnAuth(BattleTabsClient):
+    def __init__(self):
+        self.transport = RequestsHTTPTransport(url=API, use_json=True)
+        self.client = Client(transport=self.transport, fetch_schema_from_transport=True)
