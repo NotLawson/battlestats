@@ -1,5 +1,5 @@
 import redis, pickle, json
-from auth import UserFromDict
+from modules.auth import UserFromDict
 
 class DB:
     def __init__(self, host):
