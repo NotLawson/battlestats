@@ -6,11 +6,11 @@ app = Flask(__name__)
 userdb = db.DB("users")
 battledb = db.DB("battles")
 #fleetdb = db.DB("fleets") # not implemented
+from modules import battletabs
 BTClient = battletabs.BattleTabsClientUnAuth()
 
 
 # Import submodules in order
-from modules import battletabs
 from modules import auth
 from modules import battles
 
