@@ -113,7 +113,8 @@ class UserDB(db.DB):
             self.set("_idtousername", {})
 
     def find_username(self, id):
-        return self.get("_idtousername").get(id)
+        return self.redis.get("_idtousername")[id]
+    
     def set(self, key, value):
         self.redis.set(key, json.dumps(value.__dict__()))
     
