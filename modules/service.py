@@ -3,7 +3,7 @@ import gql
 from threading import Thread
 from queue import Queue
 from time import sleep
-from __main__ import userdb
+from __main__ import userdb, influx
 
 def worker(queue):
     while True:

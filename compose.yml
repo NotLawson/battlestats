@@ -4,19 +4,22 @@ services:
     restart: always
     ports:
       - 7300:3000
-  
-  influx:
+
+  influxdb:
     image: influxdb:2
-    hostname: influx
-    volumes:
-      - ./influx/lib:/var/lib/influxdb2
-      - ./influx/config:/etc/influxdb2
+    container_name: influxdb
+    restart: always
+    ports:
+      - 8086:8086
     environment:
-      - DOCKER_INFLUXDB_INIT_MODE=setup
-      - DOCKER_INFLUXDB_INIT_USERNAME=admin
-      - DOCKER_INFLUXDB_INIT_PASSWORD=admin
-      - DOCKER_INFLUXDB_INIT_ORG=battlestats
-      - DOCKER_INFLUXDB_INIT_BUCKET=league
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: admin
+      DOCKER_INFLUXDB_INIT_ORG: battlestats
+      DOCKER_INFLUXDB_INIT_BUCKET: battlestats
+    volumes:
+      - ./influx/data:/var/lib/influxdb2
+      - ./influx/config:/etc/influxdb2
 
   users:
     image: redis:6

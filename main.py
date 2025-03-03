@@ -4,6 +4,7 @@ import json
 from queue import Queue
 
 
+
 app = Flask(__name__)
 
 import modules.auth as auth
@@ -11,6 +12,7 @@ from modules.auth import UserDB
 userdb = UserDB()
 
 battledb = db.DB("battles")
+influx = db.InfluxDB()
 #fleetdb = db.DB("fleets") # not implemented
 
 from modules import battletabs
