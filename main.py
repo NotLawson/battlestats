@@ -87,7 +87,7 @@ def player_info(username):
     if user==None:
         return render_template('player_notfound.html', title="BS: Player Not Found")
     main_queue.put({"type":"sync", "username":username})
-    return render_template('player.html', user=user, title="BS: Player")
+    return render_template('player.html', user=user, title="BS: Player", int=int, json=json)
 
 
 
