@@ -64,6 +64,7 @@ class User:
         self.fleets = data["customFleets"]
         self.inventory = data["avatarParts"]
         self.medals = data["medals"]
+
     
     def __dict__(self):
         return {
@@ -104,11 +105,15 @@ class UserFromDict(User):
         self.email = userdict["email"]
         self.sync()
 
-
 class UserDB(db.DB):
     def __init__(self):
         super().__init__("users")
 
+        if self.get("_idtousername")==None:
+            self.set("_idtousername", {})
+
+    def find_username(self, id):
+        return self.get("_idtousername").get(id)
     def set(self, key, value):
         self.redis.set(key, json.dumps(value.__dict__()))
     

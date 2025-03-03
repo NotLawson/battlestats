@@ -61,6 +61,7 @@ def signup():
         else:
             #try:
                 userdb.set(username, auth.User(username, password, authtoken))
+                userdb.set("_idtousername", {**userdb.get("_idtousername"), userdb.get(username).id:username})
                 token = auth.login(username, password)
             #except Exception as e:
             #    print(e)
@@ -71,7 +72,18 @@ def signup():
         return render_template('signup.html', message=message, title="BS: Signup")
     return render_template('signup.html', title="BS: Signup")
 
+@app.route('/players', methods=['GET','POST'])
+def players_search():
+    if request.method == 'POST':
+        username = userdb.find_username(request.form['id'])
+        return redirect('/players/'+username)
+    return render_template('players.html', title="BS: Players")
 
+@app.route('/players/<username>')
+def player_info(username):
+    user = userdb.get(username)
+    main_queue.put({"type":"sync", "username":username})
+    return render_template('player.html', user=user, title="BS: Player")
 
 
 
