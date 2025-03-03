@@ -110,10 +110,10 @@ class UserDB(db.DB):
         super().__init__("users")
 
         if self.redis.get("_idtousername")==None:
-            self.redis.set("_idtousername", {})
+            self.redis.set("_idtousername", json.dumps({}))
 
     def find_username(self, id):
-        return self.redis.get("_idtousername")[id]
+        return json.loads(self.redis.get("_idtousername"))[id]
     
     def set(self, key, value):
         self.redis.set(key, json.dumps(value.__dict__()))
