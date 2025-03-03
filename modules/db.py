@@ -16,7 +16,7 @@ class DB:
 
 class InfluxDB:
     def __init__(self):
-        self.client = InfluxDBClient(host='influxdb', port=8086)
+        self.client = InfluxDBClient(host='influxdb', port=8086, username="admin", password="adminadmin")
         try: self.client.create_database('battletabs')
         except: pass
         self.client.switch_database('battletabs')
