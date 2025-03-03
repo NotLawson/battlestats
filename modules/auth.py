@@ -109,8 +109,8 @@ class UserDB(db.DB):
     def __init__(self):
         super().__init__("users")
 
-        if self.get("_idtousername")==None:
-            self.set("_idtousername", {})
+        if self.redis.get("_idtousername")==None:
+            self.redis.set("_idtousername", {})
 
     def find_username(self, id):
         return self.redis.get("_idtousername")[id]
