@@ -113,7 +113,8 @@ class UserDB(db.DB):
             self.redis.set("_idtousername", json.dumps({}))
 
     def find_username(self, id):
-        return json.loads(self.redis.get("_idtousername"))[id]
+        try: return json.loads(self.redis.get("_idtousername"))[id]
+        except KeyError: return "unknown"
     
     def set(self, key, value):
         self.redis.set(key, json.dumps(value.__dict__()))
