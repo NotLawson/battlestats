@@ -1,7 +1,7 @@
 # auth module
 from modules.battletabs import BattleTabsClient
 import json
-from __main__ import db
+from __main__ import db, influx
 import random
 
 TOKENS = {}
@@ -60,6 +60,7 @@ class User:
             "trophies":data["myLeagueProgress"]["trophies"],
             "diamonds":data["myLeagueProgress"]["diamonds"]
         }
+        influx.update_league(self.username, self.league["trophies"])
 
         self.fleets = data["customFleets"]
         self.inventory = data["avatarParts"]
