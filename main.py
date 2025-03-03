@@ -61,7 +61,7 @@ def signup():
         else:
             #try:
                 userdb.set(username, auth.User(username, password, authtoken))
-                userdb.redis.set("_idtousername", json.dumps({**json.loads(userdb.get("_idtousername")), userdb.get(username).id:username}))
+                userdb.redis.set("_idtousername", json.dumps({**json.loads(userdb.redis.get("_idtousername")), userdb.get(username).id:username}))
                 token = auth.login(username, password)
             #except Exception as e:
             #    print(e)
