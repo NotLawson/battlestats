@@ -55,10 +55,13 @@ def signup():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        authtoken = request.form['authtoken']
         if userdb.get(username)!=None:
             message = "Username already exists"
         else:
+                bt_email = request.form['email']
+                bt_password = request.form['bt']
+
+                authtoken = BTClient.mutate('mutation {loginWithCredentials(email: "'+bt_email+'", password: "'+bt_password+'")}')["loginWithCredentials"]
             #try:
                 userdb.set(username, auth.User(username, password, authtoken))
                 userdb.redis.set("_idtousername", json.dumps({**json.loads(userdb.redis.get("_idtousername")), userdb.get(username).id:username}))
