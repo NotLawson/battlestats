@@ -22,12 +22,15 @@ services:
       - ./influx/config:/etc/influxdb2
 
   users:
-    image: redis:6
+    image: postgres:13
     hostname: users
     volumes:
-      - ./redis/users/data:/data
+      - ./postgres/users/data:/var/lib/postgresql/data
     restart: always
-    command: redis-server --save 60 1 --loglevel warning
+    environment:
+      POSTGRES_DB: users
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
 
   battles:
     image: redis:6

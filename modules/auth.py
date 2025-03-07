@@ -74,7 +74,12 @@ class User:
             "token":self.token,
             "id":self.id,
             "name":self.name,
-            "email":self.email
+            "email":self.email,
+            "fleets":self.fleets,
+            "inventory":self.inventory,
+            "medals":self.medals,
+            "stats":self.stats,
+            "league":self.league
         }
     
 def login(username, password):
@@ -104,7 +109,12 @@ class UserFromDict(User):
         self.id = userdict["id"]
         self.name = userdict["name"]
         self.email = userdict["email"]
-        self.sync()
+        
+        self.stats = userdict["stats"]
+        self.league = userdict["league"]
+        self.fleets = userdict["fleets"]
+        self.inventory = userdict["inventory"]
+        self.medals = userdict["medals"]
 
 class UserDB(db.DB):
     def __init__(self):
