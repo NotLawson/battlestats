@@ -1,19 +1,6 @@
-#from __main__ import BTClient
+from __main__ import BTClient
 from queue import Queue
 from . import ships
-
-class BattleFromServers:
-    def __init__(self, id):
-        self.id = id
-        self.data = BTClient.query('{battle(id: "'+self.id+'") {id events players {id name} finishedAt winner {id name}}}')
-        self.players = self.data["battle"]["players"]
-        self.winner = self.data["battle"]["winner"]
-        self.finishedAt = self.data["battle"]["finishedAt"]
-        self.events = self.data["battle"]["events"]
-
-        i = len(self.events)
-
-
 
 class Battle:
     def __init__(self, players):
@@ -73,29 +60,106 @@ class Battle:
             },
         ]
         self.events = []
-        
+    
+class BattleFromServers:
+    def __init__(self, id):
+        self.id = id
+        self.data = BTClient.query('{battle(id: "'+self.id+'") {id events players {id name} finishedAt winner {id name}}}')
 
-    def move(self, player, x, y):
+        server_events = self.data["battle"]["events"]
+        self.events = []
+        self.players = {}
 
-        if player == 0:
-            # attacking player 2 (index 1)
+        i = 0
+        event_kinds = ['battle-created', 'player-joined', 'maps-set', 'fleet-chosen-v2', 'ships-placed', 'battle-started', 'player-took-turn', 'player-responded-to-turn', 'battle-finished', 'battle-rewards-collected']
+        # process events
+        for i in range(len(self.events)):
+            event = server_events[i]
 
-            # 0 = unrevealed, 1 = rock, 2 = empty, 3 = revealed, 4 = hit, 5 = sunk
-            if self.players[1]["revealed_board"][y][x] == 0:
-
-                # if unrevealed
-                hidden_tile = self.players[1]["board"][y][x]
-
-                # E = empty, R = rock, <id> = ship
-                if hidden_tile == "E":
-                    self.players[1]["revealed_board"][y][x] = 2
-                    outcome = "miss"
-                elif hidden_tile == "R":
-                    self.players[1]["revealed_board"][y][x] = 1
-                    outcome = "miss"
+            if event["kind"] == "battle-created":
+                if event["battleKind"] == "friendly":
+                    self.friendly = False
                 else:
-                    self.players[1]["revealed_board"][y][x] = 4
-                    ship = player[1]["fleet"][hidden_tile]
+                    self.friendly = True
+                
+                self.created_at = event["createdAt"]
+
+            elif event["kind"] == "player-joined":
+                playerid = event["userId"]
+                player = BTClient.query('{user(idOrShortId: "'+playerid+'") {name}}')
+                self.players[playerid] = {
+                    "id": event["player"]["id"],
+                    "player": player["user"]["name"],
+                    "fleet_name":"",
+                    "fleet":[],
+                    "revealed_board":[
+                        # 0 = unrevealed, 1 = rock, 2 = empty, 3 = revealed, 4 = hit, 5 = sunk
+                        [0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0]
+                    ],
+                    "board":[
+                        # E = empty, R = rock, <id> = ship
+                        ["E","E","E","E","E","E","E","E"],
+                        ["E","E","E","E","E","E","E","E"],
+                        ["E","E","E","E","E","E","E","E"],
+                        ["E","E","E","E","E","E","E","E"],
+                        ["E","E","E","E","E","E","E","E"],
+                        ["E","E","E","E","E","E","E","E"],
+                        ["E","E","E","E","E","E","E","E"],
+                        ["E","E","E","E","E","E","E","E"],
+                    ]
+                }
+                pass
+
+            elif event["kind"] == "maps-set":
+                # set maps
+                pass
+
+            elif event["kind"] == "fleet-chosen-v2":
+                # chooses the fleet
+                id = event["byUserId"]
+                fleet = event["fleet"]
+                if fleet["kind"] == "starting_fleet":
+                    self.players[id]["fleet_name"] = fleet["definitionId"]
+                else:
+                    self.players[id]["fleet_name"] = fleet["name"]
+
+            elif event["kind"] == "ships-placed":
+                # places ships
+                id = event["byUserId"]
+
+                for id, placement in event["placements"]:
+                    pass # finish ship classes first
+                pass
+
+            elif event["kind"] == "battle-started":
+                pass # skip this
+
+            elif event["kind"] == "player-took-turn":
+                # player turn
+                id = event["fromUserId"]
+
+                players = list(self.players.keys())
+                players.remove(id)
+                opponent = players[0]
 
 
+                pass
+            elif event["kind"] == "player-responded-to-turn":
+                pass # skip event as it is read by previous event
+            
+            elif event["kind"] == "battle-finished":
+                pass
+            elif event["kind"] == "battle-rewards-collected":
+                pass
+            else:
+                self.events.append({
+                    "kind": "unknown"
+                })
 

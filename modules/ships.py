@@ -16,6 +16,8 @@ def place(self, placement, board, layout):
             y += 1
         return p, board, layout
 
+
+
 class ShipSingle:
     id = "shipsingle"
     name = "Ship Single"
@@ -226,3 +228,66 @@ class BlunderBuster(ShipSingle):
                         "board": "oppo",
                         "from": self.owner
                     })
+
+class Cartographer(ShipSingle):
+    id = "cartographer"
+    name = "Cartographer"
+    health = 4
+
+    rotations = [
+        [
+            [1,1],
+            [1,1] 
+        ]
+    ]
+
+    abiltity_info = {
+        "type": "single", # single, combo, passive
+        "cooldown": 5,
+        "description": "Choose a revealed tile and expand the revealed area by 1 tile",
+    }
+
+class ConnivingCannoneer(ShipSingle):
+    id = "connivingcannoneer"
+    name = "Conniving Cannoneer"
+    health = 5
+
+    rotations = [
+        [
+            [0,1,0],
+            [1,1,1],
+            [0,1,0]
+        ]
+    ]
+
+    abiltity_info = {
+        "type": "single", # single, combo, passive
+        "cooldown": 3,
+        "description": "Attacks in a + shape. Attacks 1 random undamaged tile on your ships",
+    }
+    ability_rotations = [
+        [
+            [1,1,1]
+        ],
+        [
+            [1],
+            [1],
+            [1]
+        ]
+    ]
+
+    def abiltity(self, coords, rotation):
+        layout = self.ability_rotations[rotation]
+
+        y = 0
+        for row in layout:
+            x = 0
+            for tile in row:
+                if tile == 1:
+                    self.event_queue.put({
+                        "type": "hit",
+                        "coords": (coords[0]+x, coords[1]+y),
+                        "board": "oppo",
+                        "from": self.owner
+                    })
+
