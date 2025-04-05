@@ -15,9 +15,9 @@ class BattleTabsClient:
         self.client = Client(transport=self.transport, fetch_schema_from_transport=True)
     
     def raw_query(self, query):
-        return self.client.execute_sync(gql("{query {"+query)+"}}")
+        return self.client.execute_sync(gql("query {"+query+"}"))
     def raw_mutate(self, mutation):
-        return self.client.execute_sync(gql("{mutate {"+mutation)+"}}")
+        return self.client.execute_sync(gql("{mutate {"+mutation+"}"))
 
 class UnAuthBattleTabsClient(BattleTabsClient):
     def __init__(self):

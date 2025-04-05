@@ -5,25 +5,8 @@ services:
     ports:
       - 7300:3000
 
-  influxdb:
-    image: influxdb:2
-    container_name: influxdb
-    restart: always
-    ports:
-      - 8086:8086
-    environment:
-      DOCKER_INFLUXDB_INIT_MODE: setup
-      DOCKER_INFLUXDB_INIT_USERNAME: admin
-      DOCKER_INFLUXDB_INIT_PASSWORD: adminadmin
-      DOCKER_INFLUXDB_INIT_ORG: battlestats
-      DOCKER_INFLUXDB_INIT_BUCKET: battlestats
-    volumes:
-      - ./influx/data:/var/lib/influxdb2
-      - ./influx/config:/etc/influxdb2
-
-  users:
+  database:
     image: postgres:13
-    hostname: users
     volumes:
       - ./postgres/users/data:/var/lib/postgresql/data
     restart: always
@@ -31,18 +14,7 @@ services:
       POSTGRES_DB: users
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-
-  battles:
+  systems_health:
     image: redis:6
-    hostname: battles
-    volumes:
-      - ./redis/battles/data:/data
     restart: always
-    command: redis-server --save 60 1 --loglevel warning
-  fleets:
-    image: redis:6
-    hostname: fleets
-    volumes:
-      - ./redis/fleets/data:/data
-    restart: always
-    command: redis-server --save 60 1 --loglevel warning
+    command: redis-server

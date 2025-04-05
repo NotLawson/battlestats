@@ -1,0 +1,10 @@
+{
+    "port": 3000,
+    "postgress": {
+        "host": "postgres",
+        "user": "postgres",
+        "password": "postgres",
+        "port": 5432
+    },
+    "secret_key": "secret_key"
+}
