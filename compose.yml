@@ -4,6 +4,16 @@ services:
     restart: always
     ports:
       - 7300:3000
+    depends_on:
+      - database
+      - systems
+    
+  task_runner:
+    build: runner
+    restart: always
+    depends_on: 
+       - database
+       - systems
 
   database:
     image: postgres:13
@@ -11,10 +21,10 @@ services:
       - ./postgres/users/data:/var/lib/postgresql/data
     restart: always
     environment:
-      POSTGRES_DB: users
+      POSTGRES_DB: battlestats
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-  systems_health:
+  systems:
     image: redis:6
     restart: always
     command: redis-server

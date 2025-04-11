@@ -6,5 +6,6 @@
         "password": "postgres",
         "port": 5432
     },
-    "secret_key": "secret_key"
+    "secret_key": "secret_key",
+    "init_runner_scale":2
 }

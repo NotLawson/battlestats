@@ -1,0 +1,49 @@
+.navbar {
+    background-color: #333;
+    color: #ffffff;
+    padding-left: 10px;
+    padding-right: 20px;
+    margin: 20px;   
+    width: 70%;
+    border-radius: 10px;
+    display: inline-block;
+}
+.navbutton, .navtitle {
+    background-color: #333;
+    color: white;
+    border: none;
+    padding: 20px 20px;
+    cursor: pointer;
+    font-size: large;
+}
+.navbutton:hover {
+    background-color: #555;
+}
+
+body {
+    background-color: #dddddd;
+    font-family: sans-serif;
+    text-align: center;
+    align-items: center;
+}
+article {
+    display: grid;
+    grid-template-columns: auto auto;
+    margin-left: 20%;
+    margin-right: 20%;
+}
+.full {
+    grid-column-start: 1;
+    grid-column-end: 3;
+}
+.l {
+    grid-column-start: 1;
+    grid-column-end: 2;
+}
+.r {
+    grid-column-start: 2;
+    grid-column-end: 3;
+}
+.title {
+    text-align: center;
+}

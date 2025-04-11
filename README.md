@@ -100,7 +100,7 @@ MORE GOOD NEWS?!?! There are 4 different commands to check the daily shop, "dail
 
 While we can't just query for a user's custom fleets, we are able to find our own custom fleets. This will be similar to getting league rankings, as we will periodically log into a user account to grab current fleets. These fleets can be then uploaded and discussed.
 
-It should also be able to indentify different fleet types (such as 2a2r) and suggest different strategies based on it, aswell as calculating the damage per turn using the [BattleTabs Damage](insert google sheets link) Table by HeavenlySome. 
+It should also be able to indentify different fleet types (such as 2a2r) and suggest different strategies based on it, aswell as calculating the damage per turn using the [BattleTabs Damage](https://discord.com/channels/770955477215084554/770955477215084556/1360054020613472438) Table by originally by HeavenlySome (fixed up by me). 
 
 I also want to be able to associate fleets with replays. This way we can include a win rate as well as average reveal and shot stats from different matches. This allows us to get to my ulitmate goal: The fleet creator.
 
@@ -112,7 +112,7 @@ It should also show the stats I mentioned before, like winrate, average reveals,
 
 ## Contributing 
 
-I would love help making this project. Look in the project for this repository for things that need to be done.
+I would love help making this project. Look at the todo list for things that need to be done.
 
 To get setup for development with this project, there are a couple of thing you need to install/config:
 
@@ -120,5 +120,17 @@ To get setup for development with this project, there are a couple of thing you 
 - The latest version of all the packages in requirements.txt, unless specified.
 - [Just](https://just.systems/man/en/quick-start.html) is also quite useful, so I'd install that
 - A Postgres database with a default database of postgres. This app will sort out setting up the tables. If you run this inside of a docker stack (e.g. the compose.yml file in the root of this repository), please make sure you set the config.json file's database variables to the same as the variables for the postgres container. Likewise, please match the database variable to the ones needed to contact a bare metal postgres installation.
+- A Redis instance. This allows the main.py server and the task runner to communicate.
 
 Then just run the main Python file (main.py). It'll start a webserver on the port specified in the config file.
+
+You also need to run task_runner.py, which will start a task runner for the main server
+
+## Todo
+
+- Finish entering ship details into the modules/defaults.py file. Use the BattleTabs wiki to get the ability description, and the BattleTabs Damage Table to get the DPT values.
+- Finish fleshing out the website
+- Finish making the website pretty
+- Create the backend functions for all of this
+- Finish creating the tasks for the task runner
+- Create some documentation for the BattleTabs API at https://battletabs.fly.io/graphql (you should be able to get the schema from it, just create some docs)

@@ -115,7 +115,7 @@ class Database:
         #   - special: Special ship
         # - cd: The cooldown of the ship.
         # - ability: The description of the ship's ability from the game.
-        # - dpt: The damage per turn of the ship as defined by HeavenlySome's BattleTabs damage table.
+        # - dpt: The damage per turn of the ship as defined by HeavenlySome's BattleTabs damage table. This is a json snippet containing all the DPT stats.
         # - skins: An array of skin ids that the ship has.
         # - health: The amount of tiles the ship owns.
         # - tags: The tags of the ship. This can be used to filter ships by skills.
@@ -131,7 +131,7 @@ class Database:
                         type text,
                         cd integer,
                         ability text,
-                        dpt float,
+                        dpt json,
                         skins array(text),
                         health integer,
                         tags array(text)
@@ -255,4 +255,3 @@ class Database:
     def execute_many(self, query, params=None):
         self.cursor.executemany(query, params)
         return self.cursor.fetchall()
-

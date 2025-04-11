@@ -1,6 +1,7 @@
 ## Task Runner for the Webserver
 # This module is responsible for running tasks in the background.
 # First, the task is passed to the Load Balancer, which runs in the main thread.
+# This is done via a redis server, which also tracks system health
 # The Load Balancer will then pass the task to the Task Runner, which will run the task in a separate thread.
 # The Task Runner will then execute the task.
 # The Load Balancer will also manange Task Runner scaling, and will create and destroy Task Runners as needed.
@@ -38,15 +39,13 @@
 # - recalculate_stats_for_fleet: Recalculate the stats for a fleet
 #  - fleet_id: The id of the fleet to recalculate the stats for.
 
-
-
-
 from threading import Thread
-from db import Database
-from battletabs import BattleTabsClient, UnAuthBattleTabsClient
+from modules.db import Database
+from modules.battletabs import BattleTabsClient, UnAuthBattleTabsClient
 from logging import Logger
 import os, sys, json, time
 from queue import Queue
+import redis
 
 ## Load config
 config = json.load(open("config.json"))
@@ -77,32 +76,52 @@ else:
 class Exit(Exception):
     pass
 
-# Threads
+# System Health
+def health(self, state, scale = None):
+    global redis_server
+    if state == "ready":
+        redis_server.set("health/manager", {
+            "state":"running",
+            "runners":scale,
+            "since":time.time()
+        })
+    elif state == "exit":
+        self.redis.set("health/manager", {
+                "state":"exited",
+                "since":time.time()
+            })
+
+
+# Runners
 class Runner:
-    def __init__(self,id: int, queue: Queue, battletabs: BattleTabsClient, database: Database):
+    def __init__(self,id: int, queue: Queue, database: Database, redis: redis.Redis):
         self.queue = queue
-        self.battletabs = battletabs
         self.database = database
+        self.redis = redis
         self.logger = Logger(f"Runner-{str(id)}")
+        self.id = id
         if DEBUG:
             self.logger.setLevel("DEBUG")
             self.logger.debug(f"Debug mode enabled for Runner-{str(id)}")
         else:
             self.logger.setLevel("INFO")
 
-    def run(self):
+    def __call__(self):
+        self.health("idle")
         while True:
             task = self.queue.get()
             if task is None:
                 break
             try:
+                self.health("running", task = task["type"])
                 self.process_task(task)
+            except Exit:
+                self.logger.info("Exiting runner")
+                self.health("exit")
             except Exception as e:
                 self.logger.error(f"Error processing task {task["type"]}: {e}")
-            except Exit:
-                self.logger.info("Exit signal received, stopping thread.")
-                break
             finally:
+                self.health("idle")
                 self.queue.task_done()
                 time.sleep(0.5) # sleep to prevent overloading the battletabs servers.
 
@@ -235,5 +254,118 @@ class Runner:
             pass
         elif task["type"] == "recalculate_stats_for_fleet":
             pass
+        elif task["type"] == "exit":
+            raise Exit
         else:
             self.logger.error(f"Unknown task type: {task['type']}")
+    
+    def health(self, state, task = None):
+        if state == "running":
+            self.redis.set("health/runner-"+str(self.id), {
+                "state":"running",
+                "task":task,
+                "since":time.time()
+            })
+        elif state == "idle":
+            self.redis.set("health/runner-"+str(self.id), {
+                "state":"idle", 
+                "since":time.time()
+            })
+        elif state == "exit":
+            self.redis.set("health/runner-"+str(self.id), {
+                    "state":"exited",
+                    "since":time.time()
+                })
+class Manager:
+    runners = []
+    queues = []
+    def __init__(self, init_scale, database: Database, redis: redis.Redis, runner_class = Runner):
+        self.runner_class = runner_class
+        self.database = database
+        self.redis = redis
+        self.current_scale = 0
+    
+    def scale(self, new_scale: int):
+        if self.current_scale == new_scale:
+            logger.warning(f"Can't scale from {str(self.current_scale)} to {str(new_scale)}")
+        elif self.current_scale > new_scale:
+            # decrease instances
+            logger.info(f"Scaling from {str(self.current_scale)} to {str(new_scale)}...")
+            instances_to_kill = self.current_scale - new_scale
+            i = 0
+            for i in range(instances_to_kill):
+                logger.info(f"Killing instance {str(len(self.runners)-1)}")
+                runner = self.runners.pop()
+                queue = self.queues.pop()
+                queue.put({
+                    "type":"exit"
+                })
+                runner.join()
+                del runner, queue
+                i += 1
+            logger.info("Done.")
+
+        elif self.current_scale < new_scale:
+            # increase instances
+            logger.info(f"Scaling from {str(self.current_scale)} to {str(new_scale)}...")
+            instances_to_create = new_scale - self.current_scale
+            i = 0
+            for i in range(instances_to_create):
+                new_runner_id = len(self.runners)-1
+                logger.info(f"Creating instance {str(new_runner_id)}")
+                queue = Queue()
+                runner = Thread(target=self.runner_class(new_runner_id, queue, self.database, self.redis))
+                runner.start()
+                self.runners.append(runner)
+                self.queues.append(queue)
+                i += 1
+
+            logger.info("Done.")
+
+        return new_scale
+    
+    def process_event(self, event):
+        if event["type"] == "scale":
+            new_scale = int(event["options"]["scale"])
+            self.scale(new_scale)
+        else:
+            index, highest = 0, 0
+            for i, queue in enumerate(self.queues):
+                if len(queue) > highest:
+                    highest = len(queue)
+                    index = i
+            self.queues[index].put(event)
+
+# Load Balancer
+redis_server = redis.Redis("systems")
+
+# Redis Server Layout:
+# /-
+#  |- events: Events Queue. A redis subscription listens to this and updates the main event queue. Then, the load balancer sorts the events between runners
+#  |- health: The health of the system runners. The runners update this themselves.
+
+database = Database(config["postgres"]["host"], config["postgres"]["post"], config["postgres"]["user"], config["postgres"]["password"], logger)
+pubsub = redis_server.pubsub()
+pubsub.subscribe("event")
+manager = Manager(config["init_runner_scale"], database, redis_server)
+
+logger.info("Ready to process messages")
+health("ready")
+while True:
+    event = pubsub.get_message()
+    if event["type"]=="shutdown":
+        break
+    manager.process_event(event)
+    time.sleep(0.5)
+health("exit")
+i = 0
+logger.warning("Exiting...")
+for i in range(len(manager.runners)):
+    runner = manager.runners.pop()
+    queue = manager.queue.pop()
+    queue.put({"type":"exit"})
+    runner.join()
+    del runner, queue
+    i += 1
+
+logger.warning("Exited")

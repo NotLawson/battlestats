@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {% if title %}
+        <title>{{ title }}</title>
+        {% else %}
+        <title>BattleStats</title>
+        {% endif %}
+
+        <link rel="stylesheet" href="/static/main.css">
+    </head>
+    <body>
+        <div class="navbar">
+            <button class="navtitle"  style="float:left;">BattleStats</button>
+            <button class="navbutton" style="float:left;" onclick="location.href='/'">Home</button>
+            <button class="navbutton" style="float:left;" onclick="location.href='/player'">Player</button>
+            <button class="navbutton" style="float:left;" onclick="location.href='/shipyard'">Shipyard</button>
+
+            {% if user %}
+            <button class="navbutton" style="float:right;" onclick="location.href='/account'">Account</button>
+            {% else %}
+            <button class="navbutton" style="float:right;" onclick="location.href='/login'">Login</button>
+            {% endif %}
+        </div>
+        <article>
+            {% block content %}
+            {% endblock %}
+        </article>
+</html>
+        
