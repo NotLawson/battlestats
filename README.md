@@ -5,22 +5,6 @@
 
 > **This app will not function, as the API I have been thinking of using is an Interal one. On request of the developers, I will not put this project into production until they are ready to support other developers.**
 
-## Features
-
-- Get Current Player Stats
-
-## Todo
-
-- Store data in Postgres
-- Display Stat history using Chart.js
-- Get the frontend working
-- Auto upload replays
-- Fleet designer/Manager
-- Leaderboard
-- View other player's historical stats
-
-
-
 ## Get Started
 
 Install requirements in requirement.txt
@@ -112,7 +96,7 @@ It should also show the stats I mentioned before, like winrate, average reveals,
 
 ## Contributing 
 
-I would love help making this project. Look at the todo list for things that need to be done.
+I would love help making this project. Look in issues for things that need to be done.
 
 To get setup for development with this project, there are a couple of thing you need to install/config:
 
@@ -134,3 +118,10 @@ You also need to run task_runner.py, which will start a task runner for the main
 - Create the backend functions for all of this
 - Finish creating the tasks for the task runner
 - Create some documentation for the BattleTabs API at https://battletabs.fly.io/graphql (you should be able to get the schema from it, just create some docs)
+- Display Stat history using Chart.js
+- Get the frontend working
+- Auto upload replays (hows that gonna work?)
+- Fleet designer/Manager (shipyard)
+- Leaderboard
+- View other player's historical stats
+
