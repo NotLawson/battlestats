@@ -3,7 +3,6 @@ import time
 
 def import_ships(database: Database):
     # This script adds the normal ships to the database. It should only run when creating the database, as so not to overwrite changes or new ships
-    now = time.time()
     ships = [
         {
             "definitionid":"skullcove",

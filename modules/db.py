@@ -25,6 +25,9 @@ class Database:
         self.setup()
 
     def setup(self):
+        '''
+        Sets up the database for FTU
+        '''
         self.logger.info("Setting up database...")
 
         ## TABLE CREATION ##

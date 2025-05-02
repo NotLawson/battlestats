@@ -1,27 +1,13 @@
-# BattleStats
-## A Stat Tracker for [BattleTabs](https://battletabs.com)
+# BattleStats - A Stat Tracker for [BattleTabs](https://battletabs.com).
+
+> This project is inactive at the moment due to school ramping up for me. Please feel free to complete some tasks in the todo section, but I most likely won't be to active during this period.
 
 > WIP: This app is a work in progress. Many feature haven't been implemented/don't work
 
-> **This app will not function, as the API I have been thinking of using is an Interal one. On request of the developers, I will not put this project into production until they are ready to support other developers.**
-
-## Get Started
-
-Install requirements in requirement.txt
-
-Run main.py
-
-```
-pip install -r requirements.txt
-python main.py
-```
-
-It will create a Flask server on [127.0.0.1:5000](http://127.0.0.1:5000).
-
-Ignore the Docker stuff; I like to containerise all my applications to run on my server. Once I finish it, I will publish is to GHCR
+> This app will not be put into production, as the API I have been thinking of using is an internal one. On request of the developers, I will not put this project into production until they are ready to support other developers.
 
 ## Idea
-What exactly do we want to track in a tracking app for BattleTabs?
+What exactly do we want to track in a stat tracker for BattleTabs?
 
 - League Trophies and Level. Trophies are the MMR for BattleTabs, and determine levels.
 - Win Rate and Win Streaks. Other Skill metrics
@@ -109,6 +95,8 @@ To get setup for development with this project, there are a couple of thing you 
 Then just run the main Python file (main.py). It'll start a webserver on the port specified in the config file.
 
 You also need to run task_runner.py, which will start a task runner for the main server
+
+Instead of running these things individually, you can always just run the Docker stack. That is how it will be run when put into production, and how I personally run it.
 
 ## Todo
 
