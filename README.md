@@ -82,7 +82,7 @@ It should also show the stats I mentioned before, like winrate, average reveals,
 
 ### Site Structure
 
-The website will be split into 3 sections:
+The website will be split into 6 sections:
  - admin: The admin side of the site.
  - account: The account manager. This includes login pages, account management etc.
  - misc: Other pages that don't fall into a specific catergory. This includes the index page, the home page (when logged in) etc.
