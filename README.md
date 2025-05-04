@@ -70,7 +70,7 @@ MORE GOOD NEWS?!?! There are 4 different commands to check the daily shop, "dail
 
 While we can't just query for a user's custom fleets, we are able to find our own custom fleets. This will be similar to getting league rankings, as we will periodically log into a user account to grab current fleets. These fleets can be then uploaded and discussed.
 
-It should also be able to indentify different fleet types (such as 2a2r) and suggest different strategies based on it, aswell as calculating the damage per turn using the [BattleTabs Damage](https://discord.com/channels/770955477215084554/770955477215084556/1360054020613472438) Table by originally by HeavenlySome (fixed up by me). 
+It should also be able to identify different fleet types (such as 2a2r) and suggest different strategies based on it, aswell as calculating the damage per turn using the [BattleTabs Damage](https://discord.com/channels/770955477215084554/770955477215084556/1360054020613472438) Table by originally by HeavenlySome (fixed up by me). 
 
 I also want to be able to associate fleets with replays. This way we can include a win rate as well as average reveal and shot stats from different matches. This allows us to get to my ulitmate goal: The fleet creator.
 
@@ -78,7 +78,18 @@ I also want to be able to associate fleets with replays. This way we can include
 
 The fleet creator is probabaly one of my favourite (and high priority) features for this stats tracker. Basically, I want to have a list of all Battletabs ships, grouped into catergories (also in the damage table, thanks Heavenly!). This allows us to more easily pick different ability types. It also should be able to autocomplete different ships based on the ships you've already picked, e.g. if you picked cartographer, raft and coracle, it might pick longboat or valkryie.
 
-It should also show the stats I mentioned before, like winrate, average reveals, average shots etc to give users a better view of what their fleets are capable of.`
+It should also show the stats I mentioned before, like winrate, average reveals, average shots etc to give users a better view of what their fleets are capable of.
+
+### Site Structure
+
+The website will be split into 3 sections:
+ - admin: The admin side of the site.
+ - account: The account manager. This includes login pages, account management etc.
+ - misc: Other pages that don't fall into a specific catergory. This includes the index page, the home page (when logged in) etc.
+ - stats: Stats pages. This includes personal stats, other player stats, global stats etc.
+ - fleets: Fleets pages. This includes the fleet designer, fleet stats etc.
+ - clans: Clans pages. This includes clan homepage, clan leaderboards, how to guides etc.
+ 
 
 ## Contributing 
 

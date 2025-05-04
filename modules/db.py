@@ -1,3 +1,4 @@
+import os, sys, time
 import psycopg2, json
 
 ## DATABASE SETUP ##
@@ -45,12 +46,18 @@ class Database:
         # - fleets: The fleets the user has. This is an array of fleet ids.
         # - flags: specifies the account type, as well as warnings, bans, moderation and admin:
         #   - standard: Standard user account. has an email, has a valid token
+        #   - ghost: Ghost account. This is used for players without an actual account on the platform. Does not have an email or a valid token, is unable to login, and has reduced stats. They are not eligible for auto stat refresh.
         #   - system: System account. Does not have an email or a valid token. This is used for stuff like admin accounts etc
-        #   - banned: The user is banned from the platform. They will not be able to login or use the API.
+        #   - bot: This user is a bot. This will apply a visual tag to the user's profile in the client. They will not be able to login to the main client, but will be able login to the bot manager user interface and use the API. This is used for moderation purposes.
+        #   - banned: The user is banned from the platform. They will not be able to login or use the API. This is used for moderation purposes. This will apply a visual tag to the user's profile in the client.
         #   - warning: The user has a warning. This is used for moderation purposes. The user can still login and use the API.
-        #   - moderator: The user is a moderator. This is used for moderation purposes.
-        #   - admin: The user is an admin. This is used for moderation purposes.
-        #   - fleetmod: The user is a fleet moderator. This is used for moderation purposes.
+        #   - moderator: The user is a moderator. This is used for moderation purposes. This will apply a visual tag to the user's profile in the client.
+        #   - admin: The user is an admin. This is used for moderation purposes. This will apply a visual tag to the user's profile in the client.
+        #   - fleetmod: The user is a fleet moderator. This is used for moderation purposes. This will apply a visual tag to the user's profile in the client.
+        #   - vip: This forces the user to auto refresh thier stats (as with an active account) no matter thier other flags. For example, vip may be applied to a ghost account to refresh stats at a regular basis. This also applies a visual tag to the user's profile in the client.
+        #   - tester: The user is a test account. This is used for development purposes. This will allow the user to apply option and settings still in development for testing purposes. This will also apply a visual tag to the user's profile in the client.
+        #   - active: The user is an active account. This is used to determine whether the user is eligible for auto stat refresh. This cannot be used in conjunction with the inactive flag. This will be applied automatically when is is detected that the user has logged in or participated in a battle. It lasts 48 hours after the last activity.
+        #   - inactive: The user is an inactive account. This is used to determine whether the user is eligible for auto stat refresh. This cannot be used in conjunction with the active flag. This will be applied automatically when is is detected that the user has not logged in or participated in a battle for 48 hours. It will be removed when the user logs in or participates in a battle.
         # - last_login: The last time the user logged in. This is used for moderation purposes.
         # - account_created: The time the account was created. This is used for moderation purposes.
         self.logger.info("Setting up users table...")
@@ -72,8 +79,29 @@ class Database:
                         )
             ''')
             self.logger.info("Users table created")
-        except psycopg2.errors.DuplicateTable:
+        except Exception:
             self.logger.info("Users table already exists, moving on...")
+
+        ## Sessions table
+        # - user_id: The id of the user that owns the session.
+        # - token: The session token. This is used to identify the user in the database.
+        # - created: The time the session was created. This is used to determine if the session is still valid.
+        # - last_used: The time the session was last used. This is used to determine if the session is still valid.
+        # - name: The name of the session. This is used to identify the session in the client.
+        self.logger.info("Setting up sessions table...")
+        try:
+            self.cursor.execute('''
+            CREATE TABLE sessions(
+                        user_id integer references users(id),
+                        token text primary key,
+                        created timestamp,
+                        last_used timestamp,
+                        name text
+                        )
+            ''')
+            self.logger.info("Sessions table created")
+        except Exception:
+            self.logger.info("Sessions table already exists, moving on...")
 
         ## Stats Table
         # When updating this table, the task runner will create another row with a different timestamp. This allows us to keep track of historical data.
@@ -104,7 +132,7 @@ class Database:
                         )
             ''')
             self.logger.info("Stats table created")
-        except psycopg2.errors.DuplicateTable:
+        except Exception:
             self.logger.info("Stats table already exists, moving on...")
 
         ## Ships Table
@@ -141,7 +169,7 @@ class Database:
                         )
             ''')
             self.logger.info("Ships table created")
-        except psycopg2.errors.DuplicateTable:
+        except Exception:
             self.logger.info("Ships table already exists, moving on...")
         
         ## Fleets Table
@@ -184,7 +212,7 @@ class Database:
                         )
             ''')
             self.logger.info("Fleets table created")
-        except psycopg2.errors.DuplicateTable:
+        except Exception:
             self.logger.info("Fleets table already exists, moving on...")
         
         ## Inventory Table
@@ -207,7 +235,7 @@ class Database:
                         )
             ''')
             self.logger.info("Inventory table created")
-        except psycopg2.errors.DuplicateTable:
+        except Exception:
             self.logger.info("Inventory table already exists, moving on...")
 
         ## Battles Table
@@ -248,7 +276,7 @@ class Database:
                         )
             ''')
             self.logger.info("Battles table created")
-        except psycopg2.errors.DuplicateTable:
+        except Exception:
             self.logger.info("Battles table already exists, moving on...")
         
 
@@ -258,3 +286,80 @@ class Database:
     def execute_many(self, query, params=None):
         self.cursor.executemany(query, params)
         return self.cursor.fetchall()
+    
+    def get_session(self, session_token):
+        '''
+        Gets the session from the database
+        '''
+        self.cursor.execute("UPDATE sessions SET last_used = %s WHERE token = %s", (time.time(), session_token))
+        self.cursor.execute("SELECT  user_id FROM sessions WHERE token = %s", (session_token,))
+        return self.cursor.fetchone()
+    def create_session(self, user_id, name):
+        '''
+        Creates a session in the database
+        '''
+        token = os.urandom(32).hex()
+        self.cursor.execute("INSERT INTO sessions (user_id, token, created, last_used, name) VALUES (%s, %s, %s, %s, %s)", (user_id, token, time.time(), time.time(), name))
+        return token
+    def get_session_silent(self, session_token):
+        '''
+        Gets the session from the database without logging
+        '''
+        self.cursor.execute("SELECT * FROM sessions WHERE token = %s", (session_token,))
+        return self.cursor.fetchone()
+    def delete_session(self, session_token):
+        '''
+        Deletes a session from the database
+        '''
+        self.cursor.execute("DELETE FROM sessions WHERE token = %s", (session_token,))
+    
+    def get_user_authed(self, username, password):
+        '''
+        Gets the user from the database. Updates the last_login
+        '''
+        self.cursor.execute("UPDATE users SET last_login = %s WHERE username = %s AND password = %s", (time.time(), username, password))
+        self.cursor.execute("SELECT * FROM users WHERE username = %s AND password = %s", (username, password))
+        return self.cursor.fetchone()
+    def get_user_by_id(self, user_id):
+        '''
+        Gets the user from the database by id
+        '''
+        self.cursor.execute("SELECT * FROM users WHERE id = %s", (user_id,))
+        return self.cursor.fetchone()
+    def get_user_by_username(self, username):
+        '''
+        Gets the user from the database by username
+        '''
+        self.cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
+        return self.cursor.fetchone()
+    def get_user_by_email(self, email):
+        '''
+        Gets the user from the database by email
+        '''
+        self.cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
+        return self.cursor.fetchone()
+    def get_user_by_battletabs_id(self, battletabs_id):
+        '''
+        Gets the user from the database by battletabs id
+        '''
+        self.cursor.execute("SELECT * FROM users WHERE battletabs_id = %s", (battletabs_id,))
+        return self.cursor.fetchone()
+    def get_user_by_battletabs_username(self, battletabs_username):
+        '''
+        Gets the user from the database by battletabs username
+        '''
+        self.cursor.execute("SELECT * FROM users WHERE battletabs_username = %s", (battletabs_username,))
+        return self.cursor.fetchone()
+    
+    def create_user(self, username, password, email, battletabs_token, battletabs_id, battletabs_username, fleets, flags):
+        '''
+        Creates a user in the database
+        '''
+        self.cursor.execute("INSERT INTO users (username, password, email, token, battletabs_id, battletabs_username, fleets, flags, last_login, account_created) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (username, password, email, battletabs_token, battletabs_id, battletabs_username, fleets, flags, time.time(), time.time()))
+        return self.cursor.fetchone()
+    
+
+    
+        
+    
+    
