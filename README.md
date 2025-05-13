@@ -50,9 +50,9 @@ There is a command to get players near a trophy amount, "nearbyLeaguePlayers" th
 
 The command "league", which just returns a League object, also doesn't help too much. It just contains some meta data around the diamond dash and when the league finishes.
 
-If you use the command "userById" (or "userByShortId"), it will return their lifetime trophies as well as other stats (We'll look at this command later), but not thier current League level.
+If you use the command "userById" (or "userByShortId"), it will return their lifetime trophies as well as other stats (We'll look at this command later), but not their current League level.
 
-So far, the only command that returns a player's current trophy amount is "myLeagueProgress", which, you guessed it, only returns the trophys for the currently authed player. This is workable, but not ideal, as it will require the player to give us thier auth token to track thier stats, but having their token also means we can track other useful things like their battles, fleets etc, so it's not all bad.
+So far, the only command that returns a player's current trophy amount is "myLeagueProgress", which, you guessed it, only returns the trophys for the currently authed player. This is workable, but not ideal, as it will require the player to give us their auth token to track their stats, but having their token also means we can track other useful things like their battles, fleets etc, so it's not all bad.
 
 #### WR and WS
 

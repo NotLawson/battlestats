@@ -42,7 +42,7 @@ class Database:
         #   then send it to the server. This allows us to support Discord, Google and Apple login ontop of user/password (hopefully, I will
         #   investigate this later)
         # - battletabs_id: The battletabs user id. This is used to identify the user in the battletabs API
-        # - battletabs_username: The battletabs username. This is used to identify the user and find thier id.
+        # - battletabs_username: The battletabs username. This is used to identify the user and find their id.
         # - fleets: The fleets the user has. This is an array of fleet ids.
         # - flags: specifies the account type, as well as warnings, bans, moderation and admin:
         #   - standard: Standard user account. has an email, has a valid token
@@ -54,7 +54,7 @@ class Database:
         #   - moderator: The user is a moderator. This is used for moderation purposes. This will apply a visual tag to the user's profile in the client.
         #   - admin: The user is an admin. This is used for moderation purposes. This will apply a visual tag to the user's profile in the client.
         #   - fleetmod: The user is a fleet moderator. This is used for moderation purposes. This will apply a visual tag to the user's profile in the client.
-        #   - vip: This forces the user to auto refresh thier stats (as with an active account) no matter thier other flags. For example, vip may be applied to a ghost account to refresh stats at a regular basis. This also applies a visual tag to the user's profile in the client.
+        #   - vip: This forces the user to auto refresh their stats (as with an active account) no matter their other flags. For example, vip may be applied to a ghost account to refresh stats at a regular basis. This also applies a visual tag to the user's profile in the client.
         #   - tester: The user is a test account. This is used for development purposes. This will allow the user to apply option and settings still in development for testing purposes. This will also apply a visual tag to the user's profile in the client.
         #   - active: The user is an active account. This is used to determine whether the user is eligible for auto stat refresh. This cannot be used in conjunction with the inactive flag. This will be applied automatically when is is detected that the user has logged in or participated in a battle. It lasts 48 hours after the last activity.
         #   - inactive: The user is an inactive account. This is used to determine whether the user is eligible for auto stat refresh. This cannot be used in conjunction with the active flag. This will be applied automatically when is is detected that the user has not logged in or participated in a battle for 48 hours. It will be removed when the user logs in or participates in a battle.
@@ -102,6 +102,34 @@ class Database:
             self.logger.info("Sessions table created")
         except Exception:
             self.logger.info("Sessions table already exists, moving on...")
+
+        ## News Table
+        # - id: The id of the news item.
+        # - title: The title of the news item.
+        # - author: the user id of the author. The BattleTabs API will have it's own system account to handle this and other tasks.
+        # - content: The content of the news item.
+        # - date: The date the news item was created.
+        # - tags: The tags of the news item. This is used to filter news items by type.
+        #   - patch: The news item is a patch note from BattleTabs.
+        #   - event: The news item is an event from BattleTabs or the Discord.
+        #   - announcement: The news item is an announcement BattleTabs.
+        #   - battlestats_patch: The news item is a patch note for Battlestats.
+        #   - battlestats_announcement: The news item is an announcement for Battlestats.
+        self.logger.info("Setting up news table...")
+        try:
+            self.cursor.execute('''
+            CREATE TABLE news(
+                        id serial primary key,
+                        title text,
+                        author integer references users(id),
+                        content text,
+                        date timestamp,
+                        tags array(text)
+                        )
+            ''')
+            self.logger.info("News table created")
+        except Exception:
+            self.logger.info("News table already exists, moving on...")
 
         ## Stats Table
         # When updating this table, the task runner will create another row with a different timestamp. This allows us to keep track of historical data.
@@ -171,7 +199,29 @@ class Database:
             self.logger.info("Ships table created")
         except Exception:
             self.logger.info("Ships table already exists, moving on...")
-        
+
+        ## Items Table
+        # This is a static table used to store items metadata.
+        # - id: The id of the item in the battletabs API.
+        # - name: The name of the item.
+        # - type: The type of the item.
+        #   - cosmetic: cosmetic item
+        #   - skin: Skin
+        # - description: The description of the item.
+        self.logger.info("Setting up items table...")
+        try:
+            self.cursor.execute('''
+            CREATE TABLE items(
+                        id text primary key unique,
+                        name text,
+                        type text,
+                        description text
+                        )
+            ''')
+            self.logger.info("Items table created")
+        except Exception:
+            self.logger.info("Items table already exists, moving on...")
+
         ## Fleets Table
         # - id: The id of the fleet.
         # - name: The name of the fleet.
@@ -240,9 +290,9 @@ class Database:
 
         ## Battles Table
         # - id: The id of the battle. This is set by the BattleTabs API.
-        # - first_player_id: The id of the first player. This is thier battletabs id.
-        # - second_player_id: The id of the second player. This is thier battletabs id.
-        # - winner_id: The id of the winner. This is thier battletabs id.
+        # - first_player_id: The id of the first player. This is their battletabs id.
+        # - second_player_id: The id of the second player. This is their battletabs id.
+        # - winner_id: The id of the winner. This is their battletabs id.
         # - first_player_fleet: The fleet of the first player. This is an array of ship ids.
         # - first_player_fleet_id: The fleet id of the first player.
         # - second_player_fleet: The fleet of the second player. This is an array of ship ids.
