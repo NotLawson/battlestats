@@ -4,7 +4,7 @@
 
 > WIP: This app is a work in progress. Many feature haven't been implemented/don't work
 
-> **This app will not be put into production, as the API I have been thinking of using is an internal one. On request of the developers, I will not put this project into production until they are ready to support other developers.**
+> **On request of the developers, I will not put this project into production until they are ready to support others using their API. The current way this works is using a the internal API, so be warned.**
 
 ## Idea
 What exactly do we want to track in a stat tracker for BattleTabs?
@@ -30,21 +30,21 @@ Some of these endpoints don't require use to be authenticated, but most relating
 
 ~~This took me a long time, mostly just searching all of the .js files I could find for anything relating to the authentication process, but since every single variable was a random combination of either 1, 2 or 3 letters, I never found the part that retrieves an auth token. For now however, I can just copy the config (which includes the auth token) that the legitimate client sends to log into its GraphQL session, which can be found in the Network section of Chrome's developer tools, when you inspect the /graplhql websocket and scroll to the top of the messages.~~
 
-> I figured it out. There's a mutation on the server called loginWithCredentials. This takes the arguemnts email and password, and returns the authToken we need! This means I can create my own login page instead of needing to pull of something nefarious or complicated.
+> I figured it out. There's a mutation on the server called loginWithCredentials. This takes the argunents email and password, and returns the authToken we need! This means I can create my own login page instead of needing to do something nefarious or complicated.
 
 So let's look at our first item to track:
 
 ### League and Trophies, WR and WS
 What we need to be able to do is to take a userid and return with trophies, WR, WS and other stats, as well as record those stats somewhere for graphs and history.
 
-The storing bit is easy. We can use InfluxDB to just log the stats at the right times. However, getting the stats is a little bit trickier.
+The storing bit is easy. We can use our normal database to log the data with different times.
 
 #### League/Trophies
-There aren't any endpoints according to the schema that allow me to lookup league levels and trophies by user. I tried one called "leaguePlayers" that takes the arguements minTrophies, maxTropies and take. min and max are pretty self explanitory, but take is quite an unusual argument name that I couldn't figure out.
+There aren't any endpoints according to the schema that allow me to lookup league levels and trophies by user. I tried one called "leaguePlayers" that takes the arguements minTrophies", "maxTropies" and "take". min and max are pretty self explanitory, but "take" is quite an unusual argument name that I couldn't figure out.
 
-I tried running this with minTrophies set to 0 and maxTrophies set to something like 100000000, but it only returned about 5 or 6 players. I'm pretty sure there are more than 6 people who play Battletabs, so I'm going to label this command as unusable.
+I tried running this with "minTrophies" set to 0 and "maxTrophies" set to something like 100000000, but it only returned about 5 or 6 players. I'm pretty sure there are more than 6 people who play Battletabs, so I'm going to label this command as unusable.
 
-There is another command, "adminListLeaguePlayers", which only takes the arguement take, no min/max arguements, so I'm fairly sure that command would be the best option, if only my account had admin privledges. Ahh well.
+There is another command, "adminListLeaguePlayers", which only takes the arguement "take", no min/max arguements, so I'm fairly sure that command would be the best option, if only my account had admin privledges. Ahh well.
 
 There is a command to get players near a trophy amount, "nearbyLeaguePlayers" that takes a trophies arguemnt, but I didn't try that one as it still won't allow me to get either a list of all players to filter through, or a command that does it for me.
 
@@ -89,6 +89,16 @@ The website will be split into 6 sections:
  - stats: Stats pages. This includes personal stats, other player stats, global stats etc.
  - fleets: Fleets pages. This includes the fleet designer, fleet stats etc.
  - clans: Clans pages. This includes clan homepage, clan leaderboards, how to guides etc.
+
+
+### App structure
+
+The app should work as follows:
+
+- The main webserver. This provides the user interface
+- The service workers. These provide computation and stats collection
+- The db (postgres). This provides a way to store data
+- The redis server. This allows the different processes to communicate
  
 
 ## Contributing 
@@ -111,6 +121,7 @@ Instead of running these things individually, you can always just run the Docker
 
 ## Todo
 
+- Actually test any of the code I wrote. I should prolly finish it to some degree first tho...
 - Finish entering ship details into the modules/defaults.py file. Use the BattleTabs wiki to get the ability description, and the BattleTabs Damage Table to get the DPT values.
 - Finish fleshing out the website
 - Finish making the website pretty
