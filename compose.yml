@@ -9,7 +9,7 @@ services:
       - systems
     
   task_runner:
-    build: runner
+    build: runnerDockerfile
     restart: always
     depends_on: 
        - database
