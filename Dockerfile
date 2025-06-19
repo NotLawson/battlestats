@@ -1,8 +1,8 @@
-FROM python:3
+FROM python:3.11-slim
 
 WORKDIR /usr/app
 
-COPY modules .
+COPY modules modules
 COPY config.json .
 COPY main.py .
 COPY requirements.txt .
