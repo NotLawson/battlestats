@@ -42,7 +42,7 @@ app.logger.info("Flask Setup Complete")
 
 ## 4. Database
 from modules.db import Database
-database = Database(config["postgres"]["host"], config["postgres"]["port"], config["postgres"]["user"], config["postgres"]["password"], app.logger)
+database = Database(config.get("postgres")["host"], config.get("postgres")["port"], config.get("postgres")["user"], config.get("postgres")["password"], app.logger)
 app.logger.info("Postgres API Setup Complete")
 
 ## 5. BattleTabs API

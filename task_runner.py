@@ -1,4 +1,5 @@
 ## Task Runner for the Webserver
+## TODO: Implement a proper init order.
 # This module is responsible for running tasks in the background.
 # First, the task is passed to the Load Balancer, which runs in the main thread.
 # This is done via a redis server, which also tracks system health
@@ -42,22 +43,17 @@
 from threading import Thread
 from modules.db import Database
 from modules.battletabs import BattleTabsClient, UnAuthBattleTabsClient
+from modules.config import Config
 from logging import Logger
 import os, sys, json, time
 from queue import Queue
 import redis
 
 ## Load config
-config = json.load(open("config.json"))
-
-# Verify config
-try:
-    assert config["secret_key"] != ""
-    assert config["port"] != ""
-    assert config["port"].isdigit()
-except:
-    print("Invalid config.json file. Please check the file and try again.")
-    exit(1)
+config = Config("config.json")
+if not config.check_config():
+    print("Config file is missing or invalid. Please check config.json.")
+    sys.exit(1)
 
 ## Arguments
 DEBUG = False
@@ -345,10 +341,10 @@ redis_server = redis.Redis("systems")
 #  |- events: Events Queue. A redis subscription listens to this and updates the main event queue. Then, the load balancer sorts the events between runners
 #  |- health: The health of the system runners. The runners update this themselves.
 
-database = Database(config["postgres"]["host"], config["postgres"]["post"], config["postgres"]["user"], config["postgres"]["password"], logger)
+database = Database(config.get("postgres")["host"], config.get("postgres")["port"], config.get("postgres")["user"], config.get("postgres")["password"], logger)
 pubsub = redis_server.pubsub()
 pubsub.subscribe("event")
-manager = Manager(config["init_runner_scale"], database, redis_server)
+manager = Manager(config.get("init_runner_scale"), database, redis_server)
 
 logger.info("Ready to process messages")
 health("ready")
