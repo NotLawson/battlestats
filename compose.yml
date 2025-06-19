@@ -1,7 +1,7 @@
 services:
   app:
     build: .
-    restart: always
+   # restart: always
     ports:
       - 7300:3000
     depends_on:
@@ -12,7 +12,7 @@ services:
     build:
       context: .
       dockerfile: runnerDockerfile
-    restart: always
+   # restart: always
     depends_on: 
        - database
        - systems

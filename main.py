@@ -1,8 +1,5 @@
 ## Main File
 ## Contains the server
-
-from flask import Flask, request, jsonify, render_template, send_file, redirect
-
 print("BattleStats!")
 ## The webserver has to load the following components:
 ## 0. System imports
@@ -14,6 +11,7 @@ print("BattleStats!")
 ## 6. Auth module
 ## 7. Non-system imports
 ## 8. Routes
+## 9. Task Runner
 
 ## 0. System imports
 import os, sys, json, time
@@ -28,10 +26,11 @@ if "--debug" in sys.argv:
 
 
 ## 2. Webserver
+from flask import Flask, request, jsonify, render_template, send_file, redirect
 app = Flask(__name__)
 app.config['SECRET_KEY'] = config.get("secret_key", "super_secret_secret_key")
 
-## Configure logger
+## 3. Logger
 if DEBUG:
     app.config["DEBUG"] = True
     app.logger.setLevel("DEBUG")
@@ -41,26 +40,25 @@ else:
     app.logger.setLevel("INFO")
 app.logger.info("Flask Setup Complete")
 
-
-## Setup Websever
-app = Flask(__name__)
-app.config['SECRET_KEY'] = config["secret_key"]
-
-## BattleTabs API
-from modules.battletabs import BattleTabsClient, UnAuthBattleTabsClient
-battletabs = UnAuthBattleTabsClient()
-app.logger.info("BattleTabs API Setup Complete")
-
-## Postgres API
+## 4. Database
 from modules.db import Database
 database = Database(config["postgres"]["host"], config["postgres"]["port"], config["postgres"]["user"], config["postgres"]["password"], app.logger)
 app.logger.info("Postgres API Setup Complete")
 
-## Get auth module (depends on database)
+## 5. BattleTabs API
+from modules.battletabs import BattleTabsClient, UnAuthBattleTabsClient
+battletabs = UnAuthBattleTabsClient()
+app.logger.info("BattleTabs API Setup Complete")
+
+## 6. Auth systems
+## (depends on database)
 from modules import auth
 app.logger.info("Auth Module Setup Complete")
 
-# Routes
+## 7. Non-system imports
+## (none at the moment)
+
+## 8. Routes
 ## Admin
 @app.route("/admin")
 def admin_home():
