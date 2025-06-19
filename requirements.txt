@@ -2,3 +2,4 @@ flask
 redis
 influxdb
 gql[all]
+psycopg2

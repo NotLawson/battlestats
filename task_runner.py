@@ -119,7 +119,8 @@ class Runner:
                 self.logger.info("Exiting runner")
                 self.health("exit")
             except Exception as e:
-                self.logger.error(f"Error processing task {task["type"]}: {e}")
+                type = task["type"]
+                self.logger.error(f"Error processing task {type}: {e}")
             finally:
                 self.health("idle")
                 self.queue.task_done()
