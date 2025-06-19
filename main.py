@@ -1,29 +1,35 @@
 ## Main File
 ## Contains the server
-import os, sys, json, time
+
 from flask import Flask, request, jsonify, render_template, send_file, redirect
 
+print("BattleStats!")
+## The webserver has to load the following components:
+## 0. System imports
+## 1. Configuration
+## 2. Webserver
+## 3. Logger
+## 4. Database
+## 5. BattleTabs API
+## 6. Auth module
+## 7. Non-system imports
+## 8. Routes
 
-# Setup
-## Load config
-config = json.load(open("config.json"))
-### Verify config
-try:
-    assert config["secret_key"] != ""
-    assert config["port"] != ""
-    assert config["port"].isdigit()
-except:
-    print("Invalid config.json file. Please check the file and try again.")
-    exit(1)
+## 0. System imports
+import os, sys, json, time
 
-## Arguments
+## 1. Configuration
+from modules.config import Config
+config = Config("config.json")
+
 DEBUG = False
 if "--debug" in sys.argv:
     DEBUG = True
 
-## Setup Websever
+
+## 2. Webserver
 app = Flask(__name__)
-app.config['SECRET_KEY'] = config["secret_key"]
+app.config['SECRET_KEY'] = config.get("secret_key", "super_secret_secret_key")
 
 ## Configure logger
 if DEBUG:
@@ -34,6 +40,11 @@ else:
     app.config["DEBUG"] = False
     app.logger.setLevel("INFO")
 app.logger.info("Flask Setup Complete")
+
+
+## Setup Websever
+app = Flask(__name__)
+app.config['SECRET_KEY'] = config["secret_key"]
 
 ## BattleTabs API
 from modules.battletabs import BattleTabsClient, UnAuthBattleTabsClient
