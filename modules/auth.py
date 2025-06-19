@@ -1,7 +1,9 @@
 ## Auth module
 ## Contains the authentication system for the webserver
-import os, sys, json, time
-from __main__ import database, logger
+import os, sys, json, time, logging
+from __main__ import database, app
+
+logger = app.logger
 
 def auth(request):
     """
