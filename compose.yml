@@ -19,6 +19,7 @@ services:
 
   database:
     image: postgres:13
+    hostname: database
     volumes:
       - ./postgres/users/data:/var/lib/postgresql/data
     restart: always
@@ -28,5 +29,6 @@ services:
       POSTGRES_PASSWORD: postgres
   systems:
     image: redis:6
+    hostname: systems
     restart: always
     command: redis-server
