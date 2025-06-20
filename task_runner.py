@@ -348,6 +348,8 @@ logger.info("Ready to process messages")
 health("ready")
 while True:
     event = pubsub.get_message(ignore_subscribe_messages=True, timeout=None)
+    if event is None:
+        continue
     if event["type"]=="shutdown":
         break
     manager.process_event(event)
