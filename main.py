@@ -323,6 +323,6 @@ def maps():
 
 ## Starting the webserver
 if __name__ == "__main__":
-    app.logger.info(f"Starting server on {config.get('server')['host']}:{config.get('server')['port']}")
-    app.run(host=config.get("server")["host"], port=config.get("server")["port"], debug=DEBUG)
+    app.logger.info("Starting server on port %s", config.get("port", 5000))
+    app.run(host="0.0.0.0", port=config.get("port", 5000), debug=DEBUG)
     
