@@ -326,12 +326,9 @@ class Manager:
             new_scale = int(event["options"]["scale"])
             self.scale(new_scale)
         else:
-            index, highest = 0, 0
-            for i, queue in enumerate(self.queues):
-                if len(queue) > highest:
-                    highest = len(queue)
-                    index = i
-            self.queues[index].put(event)
+            event_count = [queue.qsize() for queue in self.queues]
+            lowest = sorted(zip(event_count, self.queues))[0][1]
+            lowest.put(event)
 
 # Load Balancer
 redis_server = redis.Redis("systems")
