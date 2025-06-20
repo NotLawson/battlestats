@@ -318,3 +318,11 @@ def maps():
 ## Fleets
 
 ## Clans
+
+
+
+## Starting the webserver
+if __name__ == "__main__":
+    app.logger.info(f"Starting server on {config.get('server')['host']}:{config.get('server')['port']}")
+    app.run(host=config.get("server")["host"], port=config.get("server")["port"], debug=DEBUG)
+    
