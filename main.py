@@ -268,7 +268,15 @@ def misc_home():
     This will show the latest news, updates and stats.
     """
     #return render_template("misc_home.html")
-    return render_template("not_built.html")
+    id = auth.auth(request)
+    if not id:
+        return render_template("misc_index.html")
+    else:
+        user = database.get_user(id)
+        if not user:
+            return render_template("misc_index.html")
+        return render_template("misc_home.html", user=user[0])
+
 @app.route("/news")
 def misc_news():
     """
