@@ -72,8 +72,8 @@ class Database:
                         token text,
                         battletabs_id text,
                         battletabs_username text,
-                        fleets array(text),
-                        flags array(text),
+                        fleets text[],
+                        flags text[],
                         last_login timestamp,
                         account_created timestamp
                         )
@@ -124,7 +124,7 @@ class Database:
                         author integer references users(id),
                         content text,
                         date timestamp,
-                        tags array(text)
+                        tags text[]
                         )
             ''')
             self.logger.info("News table created")
@@ -191,9 +191,9 @@ class Database:
                         cd integer,
                         ability text,
                         dpt json,
-                        skins array(text),
+                        skins text[],
                         health integer,
-                        tags array(text)
+                        tags text[]
                         )
             ''')
             self.logger.info("Ships table created")
@@ -212,7 +212,7 @@ class Database:
         try:
             self.cursor.execute('''
             CREATE TABLE items(
-                        id text primary key unique,
+                        id text primary key,
                         name text,
                         type text,
                         description text
@@ -249,8 +249,8 @@ class Database:
                         name text,
                         owner_id integer references users(id),
                         description text,
-                        ships array(text),
-                        tags array(text),
+                        ships text[],
+                        tags text[],
                         type text,
                         dpt float,
                         wins integer,
@@ -277,10 +277,10 @@ class Database:
             self.cursor.execute('''
             CREATE TABLE inventory(
                         user_id integer references users(id),
-                        ships array(text),
-                        skins array(text),
-                        cosmetics array(text),
-                        medals array(text),
+                        ships text[],
+                        skins text[],
+                        cosmetics text[],
+                        medals text[],
                         last_updated timestamp
                         )
             ''')
@@ -313,9 +313,9 @@ class Database:
                         first_player_id text,
                         second_player_id text,
                         winner_id text,
-                        first_player_fleet array(text),
+                        first_player_fleet text[],
                         first_player_fleet_id integer references fleets(id),
-                        second_player_fleet array(text),
+                        second_player_fleet text[],
                         second_player_fleet_id integer references fleets(id),
                         map text,
                         type text,
