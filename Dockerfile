@@ -3,6 +3,8 @@ FROM python:3.11-slim
 WORKDIR /usr/app
 
 COPY modules modules
+COPY static static
+COPY templates templates
 COPY config.json .
 COPY main.py .
 COPY requirements.txt .
