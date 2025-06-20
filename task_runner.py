@@ -332,6 +332,7 @@ class Manager:
 
 # Load Balancer
 redis_server = redis.Redis("systems")
+logger.info("Connected to Redis server")
 
 # Redis Server Layout:
 # /-
@@ -341,12 +342,12 @@ redis_server = redis.Redis("systems")
 database = Database(config.get("postgres")["host"], config.get("postgres")["port"], config.get("postgres")["user"], config.get("postgres")["password"], logger)
 pubsub = redis_server.pubsub()
 pubsub.subscribe("event")
-manager = Manager(config.get("init_runner_scale"), database, redis_server)
+manager = Manager(config.get("init_runner_scale", 1), database, redis_server)
 
 logger.info("Ready to process messages")
 health("ready")
 while True:
-    event = pubsub.get_message()
+    event = pubsub.get_message(ignore_subscribe_messages=True, timeout=None)
     if event["type"]=="shutdown":
         break
     manager.process_event(event)
