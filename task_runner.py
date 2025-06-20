@@ -76,16 +76,16 @@ class Exit(Exception):
 def health(state, scale = None):
     global redis_server
     if state == "ready":
-        redis_server.set("health/manager", {
+        redis_server.set("health/manager", str({
             "state":"running",
             "runners":scale,
             "since":time.time()
-        })
+        }))
     elif state == "exit":
-        redis_server.set("health/manager", {
+        redis_server.set("health/manager", str({
                 "state":"exited",
                 "since":time.time()
-            })
+            }))
 
 
 # Runners
@@ -258,21 +258,21 @@ class Runner:
     
     def health(self, state, task = None):
         if state == "running":
-            self.redis.set("health/runner-"+str(self.id), {
+            self.redis.set("health/runner-"+str(self.id), str({
                 "state":"running",
                 "task":task,
                 "since":time.time()
-            })
+            }))
         elif state == "idle":
-            self.redis.set("health/runner-"+str(self.id), {
+            self.redis.set("health/runner-"+str(self.id), str({
                 "state":"idle", 
                 "since":time.time()
-            })
+            }))
         elif state == "exit":
-            self.redis.set("health/runner-"+str(self.id), {
+            self.redis.set("health/runner-"+str(self.id), str({
                     "state":"exited",
                     "since":time.time()
-                })
+                }))
 class Manager:
     runners = []
     queues = []
