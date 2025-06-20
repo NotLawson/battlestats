@@ -73,7 +73,7 @@ class Exit(Exception):
     pass
 
 # System Health
-def health(self, state, scale = None):
+def health(state, scale = None):
     global redis_server
     if state == "ready":
         redis_server.set("health/manager", {
@@ -82,7 +82,7 @@ def health(self, state, scale = None):
             "since":time.time()
         })
     elif state == "exit":
-        self.redis.set("health/manager", {
+        redis_server.set("health/manager", {
                 "state":"exited",
                 "since":time.time()
             })
