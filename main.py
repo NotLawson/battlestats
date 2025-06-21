@@ -279,7 +279,7 @@ def account_register_battletabs():
     """
     BattleTabs Account linking popup page. This endpoint just returns the template.
     """
-    return render_template("account_reqister_battletabs.html")
+    return render_template("account_register_battletabs.html")
     
 @app.route("/account/forgot_password", methods=["GET", "POST"])
 def account_forgot_password():
