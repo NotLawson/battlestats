@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="/static/css/login.css">
+        <title>Register | BattleStats</title>
+    </head>
+    <body>
+        <div class="main">
+            <h1>Register</h1>
+            <span class="error">
+                {% if error %}
+                    <p style="color:red;text-align: center;">{{ error }}</p>
+                {% endif %}
+            </span>
+                <form>
+                    <label for="username">Username</label><br>
+                    <input type="text" name="username">
+                    <br>
+                    <label for="password">Password</label><br>
+                    <input type="password" name="password">
+                    <br>
+                    <label for="email">Email</label><br>
+                    <input type="email" name="email">
+                    <br>
+                    <div class="bt">
+                    <span id="state">Not Logged in</span>
+                    <br>
+                    <a href="#" onclick="console.log('Hello!')">Login to BattleTabs</button>
+                    <input type="hidden" name="battletabs_token" hidden>
+                    <input type="hidden" name="battletabs_username" hidden>
+                    <input type="hidden" name="battletabs_id" hidden>
+                    </div>
+                    <br>
+                    <input type="submit" value="Register">
+                    <br><br>
+                </form>
+                <a style="align-items: center;" href="/account/login">Login</a>
+            </span>
+        </div>
+    <button id="update" onclick="update()" hidden></button>
+    </body>
+</html>

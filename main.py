@@ -14,7 +14,7 @@ print("BattleStats!")
 ## 9. Task Runner
 
 ## 0. System imports
-import os, sys, json, time
+import os, sys, json, time, requests
 
 ## 1. Configuration
 from modules.config import Config
@@ -26,7 +26,7 @@ if "--debug" in sys.argv:
 
 
 ## 2. Webserver
-from flask import Flask, request, jsonify, render_template, send_file, redirect
+from flask import Flask, request, jsonify, render_template, send_file, redirect, make_response, Response
 app = Flask(__name__)
 app.config['SECRET_KEY'] = config.get("secret_key", "super_secret_secret_key")
 
@@ -226,22 +226,61 @@ def account_logout():
     """
     #return render_template("account_logout.html")
     return render_template("not_built.html")
+
 @app.route("/account/login", methods=["GET", "POST"])
 def account_login():
     """
     Account login page. This will show a form to log in to the account.
     This will handle GET for the form, POST for the form submission.
     """
-    #return render_template("account_login.html")
-    return render_template("not_built.html")
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = hash(request.form.get("password")) # hash the password for extra security
+        if not username or not password:
+            return render_template("account_login.html", error="Username and password are required.")
+        token = auth.login(username, password)
+        if not token:
+            return render_template("account_login.html", error="Invalid username or password.")
+        resp = make_response(redirect("/"))
+        resp.set_cookie("session_token", token)
+        app.logger.info("User %s logged in successfully with token %s", username, token)
+        return resp
+
+    return render_template("account_login.html")
+
 @app.route("/account/register", methods=["GET", "POST"])
 def account_register():
     """
     Account register page. This will show a form to register a new account.
     This will handle GET for the form, POST for the form submission.
     """
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = hash(request.form.get("password")) # hash the password for extra security
+        email = request.form.get("email")
+        battletabs_token = request.form.get("battletabs_token")
+        battletabs_id = request.form.get("battletabs_id")
+        battletabs_username = request.form.get("battletabs_username")
+        fleets = []
+        if not username or not password or not email or not battletabs_token or not battletabs_id or not battletabs_username:
+            return render_template("account_register.html", error="All fields are required. Please ensure you have logged into a BattleTabs Account before submitting.")
+        if not auth.signup(username, password, email, battletabs_token, battletabs_id, battletabs_username, fleets):
+            app.logger.info("Failed to create account for user %s with email %s", username, email)
+            return render_template("account_register.html", error="Failed to create account. This is most likely due to a username or email already being in use. Please try again with a different username or email.")
+        session_token = auth.login(username, password)
+        resp = make_response(redirect("/"))
+        resp.set_cookie("session_token", session_token)
+        app.logger.info("Successfully created account for user %s with email %s", username, email)
+        return resp
     #return render_template("account_register.html")
     return render_template("not_built.html")
+@app.route("/account/register/battletabs")
+def account_register_battletabs():
+    """
+    BattleTabs Account linking popup page. This endpoint just returns the template.
+    """
+    return render_template("account_reqister_battletabs.html")
+    
 @app.route("/account/forgot_password", methods=["GET", "POST"])
 def account_forgot_password():
     """
@@ -327,6 +366,42 @@ def maps():
 
 ## Clans
 
+## API
+@app.route('/api/graphql-proxy', methods=['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'])
+def graphql_proxy():
+    target_url = "https://battletabs.fly.dev/graphql"
+    headers = {key: value for key, value in request.headers if key.lower() != 'host'}
+    data = None
+    json_data = None
+    if request.is_json:
+        json_data = request.json
+    elif request.data:
+        data = request.get_data()
+    try:
+        resp = requests.request(
+            method=request.method,
+            url=target_url,
+            headers=headers,
+            data=data,
+            json=json_data,
+            params=request.args,  # Forward query parameters
+            allow_redirects=False, # Important to handle redirects manually if needed, or let requests handle them
+            # You might want to add a timeout for production
+            # timeout=30
+        )
+        excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding']
+        proxy_headers = [(name, value) for name, value in resp.raw.headers.items()
+                         if name.lower() not in excluded_headers]
+
+        response = Response(resp.content, resp.status_code, proxy_headers)
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, PATCH, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+
+        return response
+
+    except requests.exceptions.RequestException as e:
+        return Response(f"Proxy Error: Could not connect to target. {e}", status=500)
 
 
 ## Starting the webserver

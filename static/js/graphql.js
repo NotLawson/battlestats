@@ -704,4 +704,3 @@
     exports.validateMessage = validateMessage;
   
   }));
-s  
