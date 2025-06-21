@@ -53,7 +53,7 @@
                 const username = document.querySelector('input[name="username"]').value;
                 const password = document.querySelector('input[name="password"]').value;
                 
-                var data = await fetch("http://192.168.86.231:7300/api/graphql", {
+                var data = await fetch("/api/graphql-proxy", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
