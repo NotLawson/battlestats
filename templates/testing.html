@@ -1,0 +1,11 @@
+<html>
+    <head>
+        <script defer>
+            async function gettoken() {
+                const newWindow = await window.open("https://battletabs.io", "New Window", 'width=600,height=300');
+                const data = await newWindow.localStorage.getItem("battletabs_token");
+                const token = JSON.parse(data).token;
+            }
+        </script>
+    </head>
+</html>

@@ -25,7 +25,8 @@
                 margin-bottom: 5px;
             }
             input[type="text"],
-            input[type="password"] {
+            input[type="password"],
+            input[type="email"] {
                 width: 100%;
                 padding: 10px;
                 margin-bottom: 10px;
@@ -46,6 +47,7 @@
             }
         </style>
         <script defer>
+            var token, btusername, id;
             async function login() {
                 document.getElementById("login").disabled = true;
                 document.getElementById("login").innerText = "Logging in...";
@@ -53,21 +55,53 @@
                 const username = document.querySelector('input[name="username"]').value;
                 const password = document.querySelector('input[name="password"]').value;
                 
-                var data = await fetch("/api/graphql-proxy", {
+                var data = await fetch("/api/graphql", {
+                    method: "POST",
+                    body: "mutation {loginWithCredentials(email: \""+ username +"\", password: \""+ password +"\")}",
+                }).then(response => {
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok");
+                    }
+                    return response.json();
+                }).catch(error => {
+                    console.error("There was a problem with the fetch operation:", error);
+                    document.querySelector('.error p').innerText = "Login failed. Please try again.";
+                    document.getElementById("login").disabled = false;
+                    document.getElementById("login").innerText = "Login";
+                });
+                
+                token = data.loginWithCredentials;
+                var data = await fetch("/api/graphql", {
                     method: "POST",
                     headers: {
-                        "Content-Type": "application/json",
-                        "Accept": "application/json",
+                        "Authorization": "Bearer " + token,
                     },
-                    body: "mutation {loginWithCredentials(email: \""+ username +"\", password: \""+ password +"\")}",
-                })
-
-
-                        //window.opener.document.querySelector('input[name="battletabs_token"]').value = token;
-                        //window.opener.document.querySelector('input[name="battletabs_username"]').value = username;
-                        //window.opener.document.querySelector('input[name="battletabs_id"]').value = 'battletabs';
-                        //window.opener.document.getElementById("update").click();
-                        //window.close();\
+                    body: "query {me {id name}}"
+                }).then(response => {
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok");
+                    }
+                    return response.json();
+                }).catch(error => {
+                    console.error("There was a problem with the fetch operation:", error);
+                    document.querySelector('.error p').innerText = "Failed to fetch user data. Please try again.";
+                    document.getElementById("login").disabled = false;
+                    document.getElementById("login").innerText = "Login";
+                });
+                btusername = data.me.name;
+                id = data.me.id;
+                console.log("Logged in as " + btusername + " with ID " + id);
+                document.getElementById("name").innerText = btusername;
+                document.getElementById("login-form").setAttribute("hidden", "true");
+                document.getElementById("user-confirm").removeAttribute("hidden");
+            }
+            async function confirm() {
+                document.getElementById("confirm").disabled = true;
+                window.opener.document.querySelector('input[name="battletabs_token"]').value = token;
+                window.opener.document.querySelector('input[name="battletabs_username"]').value = btusername;
+                window.opener.document.querySelector('input[name="battletabs_id"]').value = id;
+                window.opener.document.getElementById("update").click();
+                window.close();
             }
         </script>
     </head>
@@ -77,8 +111,9 @@
             <span class="error">
                     <p style="color:red;text-align: center;"></p>
             </span>
-                <label for="username">Username</label><br>
-                <input type="text" name="username" required><br>
+            <span id="login-form">
+                <label for="username">Email</label><br>
+                <input type="email" name="username" required><br>
 
                 <label for="password">Password</label><br>
                 <input type="password" name="password" required><br>
@@ -88,7 +123,13 @@
                 <input type="hidden" name="battletabs_id" value="{{ battletabs_id }}">
 
                 <button id="login" onclick="login()">Login</button>
+            </span>
+            <span id="user-confirm" hidden>
+                <h2>Hello, <span id="name"></span></h2>
+                <button id="confirm" onclick="confirm()">Let's goo!</button>
+            </span>
             <br>
+            
         </div>
     </body>
 </html>

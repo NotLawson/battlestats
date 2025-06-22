@@ -1,6 +1,7 @@
 ## Auth module
 ## Contains the authentication system for the webserver
 import os, sys, json, time, logging
+from datetime import datetime
 from __main__ import database, app
 
 logger = app.logger
@@ -22,7 +23,7 @@ def auth(request):
     # Check if the session token is valid
     try:
         return database.get_session(session_token)[0]
-    except IndexError:
+    except TypeError:
         return False 
     
 def login(username, password):
@@ -37,8 +38,9 @@ def login(username, password):
     # Check if the username and password are valid
     try:
         user = database.get_user_authed(username, password)[0]
+        database.execute("UPDATE users SET last_login = %s WHERE username = %s AND password = %s", (datetime.now(), username, str(password)))
         # Create a session for the user
-        session_token = database.create_session(user[0])
+        session_token = database.create_session(user, "Session created via login")
         return session_token
     except IndexError:
         return False
@@ -56,7 +58,8 @@ def signup(username, password, email, battletabs_token, battletabs_id, battletab
     try:
         database.create_user(username, password, email, battletabs_token, battletabs_id, battletabs_username, fleets, ["standard", "inactive"])
         return True
-    except:
+    except Exception as e:
+        logger.error(f"Error signing up user: {e}")
         return False
 
 

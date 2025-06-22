@@ -3,6 +3,36 @@
     <head>
         <link rel="stylesheet" href="/static/css/login.css">
         <title>Register | BattleStats</title>
+        <script defer>
+            async function popup() {
+                const newWindow = await window.open("/account/register/battletabs", "BattleTabs Register", 'width=600,height=600');
+            }
+            async function update() {
+                document.getElementById("state").innerText = "Logged in as " + document.querySelector('input[name="battletabs_username"]').value;
+            }
+            async function submit() {
+                const username = document.querySelector('input[name="username"]').value;
+                const password = document.querySelector('input[name="password"]').value;
+                const email = document.querySelector('input[name="email"]').value;
+                const token = document.querySelector('input[name="battletabs_token"]').value;
+                const btusername = document.querySelector('input[name="battletabs_username"]').value;
+                const id = document.querySelector('input[name="battletabs_id"]').value;
+
+                if (!username || !password || !email) {
+                    document.querySelector('.error').innerHTML = "<p style='color:red;text-align: center;'>Please fill in all fields.</p>";
+                    return;
+                }
+                if (password.length < 8) {
+                    document.querySelector('.error').innerHTML = "<p style='color:red;text-align: center;'>Password must be at least 8 characters long.</p>";
+                    return;
+                }
+                if (!token || !btusername || !id) {
+                    document.querySelector('.error').innerHTML = "<p style='color:red;text-align: center;'>Please log in to BattleTabs first.</p>";
+                    return;
+                }
+                document.getElementById("register-form").submit();
+            }
+        </script>
     </head>
     <body>
         <div class="main">
@@ -12,7 +42,7 @@
                     <p style="color:red;text-align: center;">{{ error }}</p>
                 {% endif %}
             </span>
-                <form>
+                <form method="POST" action="/account/register" id="register-form">
                     <label for="username">Username</label><br>
                     <input type="text" name="username">
                     <br>
@@ -25,13 +55,13 @@
                     <div class="bt">
                     <span id="state">Not Logged in</span>
                     <br>
-                    <a href="#" onclick="console.log('Hello!')">Login to BattleTabs</button>
+                    <a href="#" id="loginbt" onclick="popup()">Login to BattleTabs</a>
                     <input type="hidden" name="battletabs_token" hidden>
                     <input type="hidden" name="battletabs_username" hidden>
                     <input type="hidden" name="battletabs_id" hidden>
                     </div>
                     <br>
-                    <input type="submit" value="Register">
+                    <button onclick="submit()" id="register">Register</button>
                     <br><br>
                 </form>
                 <a style="align-items: center;" href="/account/login">Login</a>

@@ -114,6 +114,7 @@ class Runner:
             except Exit:
                 self.logger.info("Exiting runner")
                 self.health("exit")
+                break
             except Exception as e:
                 type = task["type"]
                 self.logger.error(f"Error processing task {type}: {e}")
@@ -125,7 +126,9 @@ class Runner:
     def process_task(self, task):
         # Process the task here
         # For example, you can call the battletabs API or database API here
-        if task["type"] == "update_stats_for_user":
+        if task["type"] == "ping":
+            self.logger.info("Received ping task") 
+        elif task["type"] == "update_stats_for_user":
             user_id = task["options"]["user_id"]
             
             # Get the user's authToken and battletabs id from the database
@@ -339,7 +342,14 @@ logger.info("Connected to Redis server")
 #  |- events: Events Queue. A redis subscription listens to this and updates the main event queue. Then, the load balancer sorts the events between runners
 #  |- health: The health of the system runners. The runners update this themselves.
 
-database = Database(config.get("postgres")["host"], config.get("postgres")["port"], config.get("postgres")["user"], config.get("postgres")["password"], logger)
+while True:
+    try:
+        database = Database(config.get("postgres")["host"], config.get("postgres")["port"], config.get("postgres")["user"], config.get("postgres")["password"], logger)
+        break
+    except Exception as e:
+        logger.error(f"Error connecting to database: {e}")
+        time.sleep(5)
+
 pubsub = redis_server.pubsub()
 pubsub.subscribe("event")
 manager = Manager(config.get("init_runner_scale", 1), database, redis_server)

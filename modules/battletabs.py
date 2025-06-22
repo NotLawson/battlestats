@@ -3,7 +3,7 @@ from gql import gql, Client
 from gql.transport.requests import RequestsHTTPTransport
 
 API = "https://battletabs.fly.dev/graphql"
-WSAPI = "wss://battletabs.fly.dev/grapql "
+WSAPI = "wss://battletabs.fly.dev/graphql"
 
 class BattleTabsClient:
     '''
@@ -14,7 +14,7 @@ class BattleTabsClient:
             "Authorization": "Bearer "+auth_token
         }
         self.transport = RequestsHTTPTransport(url=API, headers=headers, use_json=True)
-        self.client = Client(transport=self.transport, fetch_schema_from_transport=True)
+        self.client = Client(transport=self.transport, fetch_schema_from_transport=False)
     
     def raw_query(self, query):
         '''
@@ -26,7 +26,11 @@ class BattleTabsClient:
         Sends a mutation to the BattleTabs API
         '''
         return self.client.execute_sync(gql("{mutate {"+mutation+"}"))
-
+    def raw(self, query):
+        '''
+        Sends a query or mutation to the BattleTabs API
+        '''
+        return self.client.execute_sync(gql(query))
 class UnAuthBattleTabsClient(BattleTabsClient):
     '''
     This allows us to connect without auth to the BattleTabs API in a less messy way.

@@ -42,8 +42,15 @@ app.logger.info("Flask Setup Complete")
 
 ## 4. Database
 from modules.db import Database
-database = Database(config.get("postgres")["host"], config.get("postgres")["port"], config.get("postgres")["user"], config.get("postgres")["password"], app.logger)
-app.logger.info("Postgres API Setup Complete")
+while True:
+    try:
+        database = Database(config.get("postgres")["host"], config.get("postgres")["port"], config.get("postgres")["user"], config.get("postgres")["password"], app.logger)
+        app.logger.info("Postgres API Setup Complete")
+        break
+    except Exception as e:
+        app.logger.error("Failed to connect to Postgres database: %s", e)
+        app.logger.info("Retrying in 5 seconds...")
+        time.sleep(5)
 
 ## 5. BattleTabs API
 from modules.battletabs import BattleTabsClient, UnAuthBattleTabsClient
@@ -56,7 +63,10 @@ from modules import auth
 app.logger.info("Auth Module Setup Complete")
 
 ## 7. Non-system imports
-## (none at the moment)
+from datetime import datetime
+from modules import runner
+runner = runner.RunnerClient()
+app.logger.info("Non-system imports Setup Complete")
 
 ## 8. Routes
 ## Admin
@@ -235,7 +245,7 @@ def account_login():
     """
     if request.method == "POST":
         username = request.form.get("username")
-        password = hash(request.form.get("password")) # hash the password for extra security
+        password = request.form.get("password")
         if not username or not password:
             return render_template("account_login.html", error="Username and password are required.")
         token = auth.login(username, password)
@@ -256,7 +266,7 @@ def account_register():
     """
     if request.method == "POST":
         username = request.form.get("username")
-        password = hash(request.form.get("password")) # hash the password for extra security
+        password = request.form.get("password")
         email = request.form.get("email")
         battletabs_token = request.form.get("battletabs_token")
         battletabs_id = request.form.get("battletabs_id")
@@ -272,8 +282,7 @@ def account_register():
         resp.set_cookie("session_token", session_token)
         app.logger.info("Successfully created account for user %s with email %s", username, email)
         return resp
-    #return render_template("account_register.html")
-    return render_template("not_built.html")
+    return render_template("account_register.html")
 @app.route("/account/register/battletabs")
 def account_register_battletabs():
     """
@@ -307,14 +316,15 @@ def misc_home():
     This will show the latest news, updates and stats.
     """
     #return render_template("misc_home.html")
+    app.logger.info("User is accessing the home page")
     id = auth.auth(request)
     if not id:
         return render_template("misc_index.html")
     else:
-        user = database.get_user(id)
+        user = database.get_user_by_id(id)
         if not user:
             return render_template("misc_index.html")
-        return render_template("misc_home.html", user=user[0])
+        return render_template("misc_home.html", user=user)
 
 @app.route("/news")
 def misc_news():
@@ -367,42 +377,37 @@ def maps():
 ## Clans
 
 ## API
-@app.route('/api/graphql-proxy', methods=['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'])
-def graphql_proxy():
-    target_url = "https://battletabs.fly.dev/graphql"
-    headers = {key: value for key, value in request.headers if key.lower() != 'host'}
-    data = None
-    json_data = None
-    if request.is_json:
-        json_data = request.json
-    elif request.data:
-        data = request.get_data()
-    try:
-        resp = requests.request(
-            method=request.method,
-            url=target_url,
-            headers=headers,
-            data=data,
-            json=json_data,
-            params=request.args,  # Forward query parameters
-            allow_redirects=False, # Important to handle redirects manually if needed, or let requests handle them
-            # You might want to add a timeout for production
-            # timeout=30
-        )
-        excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding']
-        proxy_headers = [(name, value) for name, value in resp.raw.headers.items()
-                         if name.lower() not in excluded_headers]
+### GraphQL Proxy
+@app.route("/api/graphql", methods = ["POST"])
+def api_graphql():
+    """
+    GraphQL Proxy endpoint. This will proxy the request to the BattleTabs API.
+    This will handle POST requests with a JSON body containing the query and variables.
+    """
+    query = request.get_data().decode("utf-8")
+    auth_token = request.headers.get("Authorization", False)
+    if not auth_token:
+        try:
+            return jsonify(battletabs.raw(query))
+        except Exception as e:
+            app.logger.error("Error in GraphQL query: %s", e)
+            return jsonify({"error": "Invalid query"}), 400
+    else:
+        try:
+            client = BattleTabsClient(auth_token.split(" ")[1])
+            return jsonify(client.raw(query))
+        except Exception as e:
+            app.logger.error("Error in GraphQL query with auth: %s", e)
+            return jsonify({"error": "Invalid query"}), 400
 
-        response = Response(resp.content, resp.status_code, proxy_headers)
-        response.headers['Access-Control-Allow-Origin'] = '*'
-        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, PATCH, OPTIONS'
-        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
 
-        return response
-
-    except requests.exceptions.RequestException as e:
-        return Response(f"Proxy Error: Could not connect to target. {e}", status=500)
-
+@app.route("/api/ping", methods=["GET"])
+def api_ping():
+    """
+    Ping the runners
+    """
+    runner.event({"type": "ping"})
+    return jsonify({"status": "pong"}), 200
 
 ## Starting the webserver
 if __name__ == "__main__":

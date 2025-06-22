@@ -1,9 +1,9 @@
 body {
-                font-family: Arial, sans-serif;
-                background-color: #f4f4f4;
-                margin: 0;
-                padding: 20px;
-            }
+    background-color: #dddddd;
+    font-family: Arial, Helvetica, sans-serif;
+    text-align: center;
+    align-items: center;
+}
             .main {
                 max-width: 400px;
                 margin: auto;
@@ -28,7 +28,7 @@ body {
                 border-radius: 3px;
                 border: 1px solid #ccc;
             }
-            button, input[type="submit"] {
+            button, input[type="submit"], input[type="button"] {
                 width: 100%;
                 padding: 10px;
                 background-color: #bebebe;
@@ -37,7 +37,7 @@ body {
                 border-radius: 3px;
                 cursor: pointer;
             }
-            button:hover, input[type="submit"]:hover {
+            button:hover, input[type="submit"]:hover, input[type="button"]:hover {
                 background-color: #858585;
             }
             .bt {

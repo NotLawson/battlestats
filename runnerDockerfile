@@ -1,13 +1,16 @@
 FROM python:3.11-slim
 
 WORKDIR /usr/task_runner
+
 COPY requirements.txt .
+RUN pip install -r requirements.txt
+
 COPY modules modules
 COPY task_runner.py .
 COPY config.json .
 
-RUN pip install -r requirements.txt
 
-CMD python3 task_runner.py
+
+CMD ["python3", "task_runner.py"]
 
 
