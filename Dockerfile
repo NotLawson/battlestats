@@ -12,4 +12,4 @@ COPY config.json .
 COPY main.py .
 
 
-CMD ["python3", "main.py"]
+CMD ["python3", "-u", "main.py"]

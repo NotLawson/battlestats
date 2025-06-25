@@ -1,5 +1,6 @@
 ## Task Runner for the Webserver
 ## TODO: Implement a proper init order.
+## TODO: rework this entire thing ngl
 # This module is responsible for running tasks in the background.
 # First, the task is passed to the Load Balancer, which runs in the main thread.
 # This is done via a redis server, which also tracks system health
@@ -44,7 +45,7 @@ from threading import Thread
 from modules.db import Database
 from modules.battletabs import BattleTabsClient, UnAuthBattleTabsClient
 from modules.config import Config
-from logging import Logger
+import logging
 import os, sys, json, time
 from queue import Queue
 import redis
@@ -55,18 +56,15 @@ if not config.check_config():
     print("Config file is missing or invalid. Please check config.json.")
     sys.exit(1)
 
+logging.basicConfig(level=logging.INFO, 
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+log = logging
+
 ## Arguments
 DEBUG = False
 if "--debug" in sys.argv:
     DEBUG = True 
 
-logger = Logger("Main Thread")
-
-if DEBUG:
-    logger.setLevel("DEBUG")
-    logger.debug("Debug mode enabled")
-else:
-    logger.setLevel("INFO")
 
 # Exit Error
 class Exit(Exception):
@@ -94,13 +92,8 @@ class Runner:
         self.queue = queue
         self.database = database
         self.redis = redis
-        self.logger = Logger(f"Runner-{str(id)}")
+        self.logger = logging
         self.id = id
-        if DEBUG:
-            self.logger.setLevel("DEBUG")
-            self.logger.debug(f"Debug mode enabled for Runner-{str(id)}")
-        else:
-            self.logger.setLevel("INFO")
 
     def __call__(self):
         self.health("idle")
@@ -112,12 +105,12 @@ class Runner:
                 self.health("running", task = task["type"])
                 self.process_task(task)
             except Exit:
-                self.logger.info("Exiting runner")
+                log.info("Exiting runner")
                 self.health("exit")
                 break
             except Exception as e:
                 type = task["type"]
-                self.logger.error(f"Error processing task {type}: {e}")
+                log.info(f"Error processing task {type}: {e}")
             finally:
                 self.health("idle")
                 self.queue.task_done()
@@ -127,7 +120,7 @@ class Runner:
         # Process the task here
         # For example, you can call the battletabs API or database API here
         if task["type"] == "ping":
-            self.logger.info("Received ping task") 
+            log.info("Received ping task") 
         elif task["type"] == "update_stats_for_user":
             user_id = task["options"]["user_id"]
             
@@ -226,7 +219,7 @@ class Runner:
             client = BattleTabsClient(authToken)
 
             # Get the user's inventory from the BattleTabs API
-            inventory_raw = client.raw_query("blueprints {shipDefinitionId status} avatarParts {definitionId} avatarPartVariants {definitionId kind}myShipSkins {skins {definitionId}}")
+            inventory_raw = client.raw_query("bluelog.infos {shipDefinitionId status} avatarParts {definitionId} avatarPartVariants {definitionId kind}myShipSkins {skins {definitionId}}")
 
             # Extract inventory from the response
             items = []
@@ -242,7 +235,7 @@ class Runner:
                 skins.append(skin["definitionId"])
             
             ships = []
-            for ship in inventory_raw["blueprints"]:
+            for ship in inventory_raw["bluelog.infos"]:
                 ships.append(ship["shipDefinitionId"])
 
             now = time.time()
@@ -257,7 +250,8 @@ class Runner:
         elif task["type"] == "exit":
             raise Exit
         else:
-            self.logger.error(f"Unknown task type: {task['type']}")
+            log.info(f"Unknown task type: {task['type']}")
+            log.info(f"Task: {task}")
     
     def health(self, state, task = None):
         if state == "running":
@@ -284,17 +278,18 @@ class Manager:
         self.database = database
         self.redis = redis
         self.current_scale = 0
+        self.current_scale = self.scale(init_scale)
     
     def scale(self, new_scale: int):
         if self.current_scale == new_scale:
-            logger.warning(f"Can't scale from {str(self.current_scale)} to {str(new_scale)}")
+            log.info(f"Can't scale from {str(self.current_scale)} to {str(new_scale)}")
         elif self.current_scale > new_scale:
             # decrease instances
-            logger.info(f"Scaling from {str(self.current_scale)} to {str(new_scale)}...")
+            log.info(f"Scaling from {str(self.current_scale)} to {str(new_scale)}...")
             instances_to_kill = self.current_scale - new_scale
             i = 0
             for i in range(instances_to_kill):
-                logger.info(f"Killing instance {str(len(self.runners)-1)}")
+                log.info(f"Killing instance {str(len(self.runners)-1)}")
                 runner = self.runners.pop()
                 queue = self.queues.pop()
                 queue.put({
@@ -303,16 +298,16 @@ class Manager:
                 runner.join()
                 del runner, queue
                 i += 1
-            logger.info("Done.")
+            log.info("Done.")
 
         elif self.current_scale < new_scale:
             # increase instances
-            logger.info(f"Scaling from {str(self.current_scale)} to {str(new_scale)}...")
+            log.info(f"Scaling from {str(self.current_scale)} to {str(new_scale)}...")
             instances_to_create = new_scale - self.current_scale
             i = 0
             for i in range(instances_to_create):
-                new_runner_id = len(self.runners)-1
-                logger.info(f"Creating instance {str(new_runner_id)}")
+                new_runner_id = len(self.runners)
+                log.info(f"Creating instance {str(new_runner_id)}")
                 queue = Queue()
                 runner = Thread(target=self.runner_class(new_runner_id, queue, self.database, self.redis))
                 runner.start()
@@ -320,22 +315,25 @@ class Manager:
                 self.queues.append(queue)
                 i += 1
 
-            logger.info("Done.")
-
+            log.info("Done.")
+        health("ready", new_scale)
         return new_scale
     
     def process_event(self, event):
         if event["type"] == "scale":
             new_scale = int(event["options"]["scale"])
-            self.scale(new_scale)
+            self.current_scale = self.scale(new_scale)
         else:
             event_count = [queue.qsize() for queue in self.queues]
-            lowest = sorted(zip(event_count, self.queues))[0][1]
+            lowest = sorted(zip(event_count, self.queues), key=self.sort_func)[0][1]
             lowest.put(event)
+
+    def sort_func(self, obj):
+        return obj[0]
 
 # Load Balancer
 redis_server = redis.Redis("systems")
-logger.info("Connected to Redis server")
+log.info("Connected to Redis server")
 
 # Redis Server Layout:
 # /-
@@ -344,21 +342,26 @@ logger.info("Connected to Redis server")
 
 while True:
     try:
-        database = Database(config.get("postgres")["host"], config.get("postgres")["port"], config.get("postgres")["user"], config.get("postgres")["password"], logger)
+        database = Database(config.get("postgres")["host"], config.get("postgres")["port"], config.get("postgres")["user"], config.get("postgres")["password"], logging)
         break
     except Exception as e:
-        logger.error(f"Error connecting to database: {e}")
+        log.info(f"Error connecting to database: {e}")
         time.sleep(5)
 
 pubsub = redis_server.pubsub()
 pubsub.subscribe("event")
 manager = Manager(config.get("init_runner_scale", 1), database, redis_server)
 
-logger.info("Ready to process messages")
+log.info("Ready to process messages")
 health("ready")
 while True:
     event = pubsub.get_message(ignore_subscribe_messages=True, timeout=None)
     if event is None:
+        continue
+    try:
+        event = json.loads(event["data"].decode("utf-8"))
+    except json.JSONDecodeError:
+        log.info(f"Error decoding event: {event['data']}")
         continue
     if event["type"]=="shutdown":
         break
@@ -366,7 +369,7 @@ while True:
     time.sleep(0.5)
 health("exit")
 i = 0
-logger.warning("Exiting...")
+log.info("Exiting...")
 for i in range(len(manager.runners)):
     runner = manager.runners.pop()
     queue = manager.queue.pop()
@@ -375,4 +378,4 @@ for i in range(len(manager.runners)):
     del runner, queue
     i += 1
 
-logger.warning("Exited")
+log.info("Exited")

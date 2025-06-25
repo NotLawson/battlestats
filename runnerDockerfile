@@ -11,6 +11,6 @@ COPY config.json .
 
 
 
-CMD ["python3", "task_runner.py"]
+CMD ["python3", "-u", "task_runner.py"]
 
 
