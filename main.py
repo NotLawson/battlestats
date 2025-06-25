@@ -281,6 +281,7 @@ def account_register():
         resp = make_response(redirect("/"))
         resp.set_cookie("session_token", session_token)
         app.logger.info("Successfully created account for user %s with email %s", username, email)
+        runner.event({"type":"update_stats_for_user", "options": {"user_id": database.get_user_by_username(username)[0]}})
         return resp
     return render_template("account_register.html")
 @app.route("/account/register/battletabs")

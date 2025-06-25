@@ -181,7 +181,7 @@ class Database:
                         diamonds integer,
                         gold integer,
                         gems integer,
-                        from timestamp
+                        time timestamp
                         )
             ''')
             self.logger.info("Stats table created")

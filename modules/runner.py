@@ -2,6 +2,7 @@
 import redis
 import threading
 import queue
+import json
 
 class RunnerClient:
     def __init__(self, host="systems"):
@@ -15,7 +16,7 @@ class RunnerClient:
         """
         while True:
             event = self.event_queue.get(True, None)
-            self.redis.publish("/events", event)
+            self.redis.publish("event", json.dumps(event))
             self.event_queue.task_done()
     
     def event(self, event):

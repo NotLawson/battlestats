@@ -47,6 +47,7 @@ from modules.battletabs import BattleTabsClient, UnAuthBattleTabsClient
 from modules.config import Config
 import logging
 import os, sys, json, time
+from datetime import datetime
 from queue import Queue
 import redis
 
@@ -77,12 +78,12 @@ def health(state, scale = None):
         redis_server.set("health/manager", str({
             "state":"running",
             "runners":scale,
-            "since":time.time()
+            "since":datetime.now()
         }))
     elif state == "exit":
         redis_server.set("health/manager", str({
                 "state":"exited",
-                "since":time.time()
+                "since":datetime.now()
             }))
 
 
@@ -126,31 +127,31 @@ class Runner:
             
             # Get the user's authToken and battletabs id from the database
             user_obj = self.database.execute("SELECT token, battletabs_id FROM users WHERE id = %s", (user_id,))
-            authToken = user_obj[0][0]
-            battletabs_id = user_obj[0][1]
+            authToken = user_obj[0]
+            battletabs_id = user_obj[1]
             
             # Create a new BattleTabsClient object with the user's authToken
             client = BattleTabsClient(authToken)
 
             # Get the user's stats from the BattleTabs API
-            stats = client.raw_query("me {stats {wins losses} currencies} myLeagueProgress {id	trophies highestTrophies diamonds}")
+            stats = client.raw_query("me {stats {wins losses} currencies} myLeagueProgress {trophies highestTrophies diamonds}")
 
             # Extract stats from the response
             wins = stats["me"]["stats"]["wins"]
             losses = stats["me"]["stats"]["losses"]
             trophies = stats["myLeagueProgress"]["trophies"]
             diamonds = stats["myLeagueProgress"]["diamonds"]
-            gold = stats["currencies"]["gold"]
-            gems = stats["currencies"]["gems"]
+            gold = stats["me"]["currencies"]["gold"]
+            gems = stats["me"]["currencies"]["gems"]
 
             games_played = wins + losses
             winrate = wins / games_played if games_played > 0 else 0
 
             # get the current time
-            now = time.time()
+            now = datetime.now()
 
             # Update the user's stats in the database
-            self.database.execute("INSERT INTO users (user_id, wins, losses, winrate, games_played, league, diamonds, gold, gems, from) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (battletabs_id, wins, losses, winrate, games_played, trophies, diamonds, gold, gems, now))
+            self.database.execute("INSERT INTO stats (user_id, wins, losses, winrate, games_played, league, diamonds, gold, gems, time) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (user_id, wins, losses, winrate, games_played, trophies, diamonds, gold, gems, now))
  
         elif task["type"] == "update_fleets_for_user":
             user_id = task["options"]["user_id"]
@@ -190,7 +191,7 @@ class Runner:
                         dpt += ship_obj[0][0]
                         health += ship_obj[0][1]
                     
-                    now = time.time()
+                    now = datetime.now()
 
                     # Create the fleet in the database
                     self.database.execute("INSERT INTO fleets (name, ships, dpt, health, owner_id, last_updated) VALUES (%s, %s)", (fleet["name"], fleet["ships"], dpt, health, user_id, now))
@@ -202,7 +203,7 @@ class Runner:
                 # add fleet to user's fleet list
                 fleets_for_database.append(db_fleet_obj[0])
 
-            now = time.time()
+            now = datetime.now()
             
             # update the user's fleets in the database
             self.database.execute("UPDATE users SET fleets = %s WHERE id = %s", (fleets_for_database, user_id))
@@ -238,7 +239,7 @@ class Runner:
             for ship in inventory_raw["bluelog.infos"]:
                 ships.append(ship["shipDefinitionId"])
 
-            now = time.time()
+            now = datetime.now()
 
             # Update the user's inventory in the database
             self.database.execute("UPDATE users SET inventory = %s, skins = %s, ships = %s WHERE id = %s", (items, skins, ships, user_id))
@@ -258,17 +259,17 @@ class Runner:
             self.redis.set("health/runner-"+str(self.id), str({
                 "state":"running",
                 "task":task,
-                "since":time.time()
+                "since":datetime.now()
             }))
         elif state == "idle":
             self.redis.set("health/runner-"+str(self.id), str({
                 "state":"idle", 
-                "since":time.time()
+                "since":datetime.now()
             }))
         elif state == "exit":
             self.redis.set("health/runner-"+str(self.id), str({
                     "state":"exited",
-                    "since":time.time()
+                    "since":datetime.now()
                 }))
 class Manager:
     runners = []
@@ -365,6 +366,7 @@ while True:
         continue
     if event["type"]=="shutdown":
         break
+    log.info(f"Received event: {event}")
     manager.process_event(event)
     time.sleep(0.5)
 health("exit")
