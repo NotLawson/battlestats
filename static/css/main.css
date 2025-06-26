@@ -1,35 +1,11 @@
 /* Main CSS file. */
 /* Used in most places */
 
-/* Navigation bar styles */
-.navbar {
-    background-color: #333;
-    color: #ffffff;
-    padding-right: 20px;
-    margin: 20px;   
-    width: 70%;
-    border-radius: 10px;
-    display: inline-block;
-    height: 65px;
-}
-.navbutton, .navtitle {
-    background-color: #333;
-    color: white;
-    border: none;
-    padding: 20px 20px;
-    cursor: pointer;
-    font-size: large;
-}
-.navbutton:hover {
-    background-color: #555;
-}
-
 /* Main content styles */
 body {
     background-color: #dddddd;
     font-family: Arial, Helvetica, sans-serif;
     text-align: center;
-    align-items: center;
 }
 article {
     display: grid;
@@ -76,7 +52,7 @@ input[type="email"] {
 }
 
 /* Button styles */
-button, 
+button:not(.navbutton, .navtitle), 
 input[type="submit"], 
 input[type="button"] {
     width: 100%;
@@ -87,8 +63,31 @@ input[type="button"] {
     border-radius: 3px;
     cursor: pointer;
 }
-button:hover, 
+button:not(.navbutton, .navtitle):hover, 
 input[type="submit"]:hover, 
 input[type="button"]:hover {
     background-color: #858585;
+}
+
+/* Navigation bar styles */
+.navbar {
+    background-color: #333;
+    color: #ffffff;
+    padding-right: 20px;
+    margin: 20px;   
+    width: 70%;
+    border-radius: 10px;
+    display: inline-block;
+    height: 65px;
+}
+.navbutton, .navtitle {
+    background-color: #333;
+    color: white;
+    border: none;
+    padding: 20px 20px;
+    cursor: pointer;
+    font-size: large;
+}
+.navbutton:hover {
+    background-color: #555;
 }

@@ -228,8 +228,9 @@ def account_home():
         email = request.form.get("email")
         password = request.form.get("password", None)
         try:
-            database.update_user(id, username, email, password)
+            database.update_user(id, username, password, email)
             app.logger.info("User %s updated their account information", username)
+            user = database.get_user_by_id(id)
             return render_template("account_home.html", user=user, flags=flags, success="Account information updated successfully.")
         except Exception as e:
             app.logger.error("Failed to update user %s account information. Reason: %s", username, e, exec_info=True)

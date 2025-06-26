@@ -127,6 +127,12 @@ class Runner:
             
             # Get the user's authToken and battletabs id from the database
             user_obj = self.database.execute("SELECT token, battletabs_id FROM users WHERE id = %s", (user_id,))
+            latest = self.database.execute("SELECT time FROM stats WHERE user_id = %s ORDER BY time DESC LIMIT 1", (user_id,))
+            since = datetime.now() - latest[0]
+            
+            if since.total_seconds() < 60 * 5:
+                return  # Don't update stats if the user has been updated in the last 5 minutes
+            
             authToken = user_obj[0]
             battletabs_id = user_obj[1]
             

@@ -6,13 +6,13 @@
 {% endblock %}
 
 {% block content %}
-<h1 class="title">Account</h1>
 <div class="full">
+    <h1>Account</h1>
     <form method="post">
         <label for="username">Username</label><br>
         <input type="text" name="username" value="{{ user[1] }}" required><br>
         <label for="email">Email</label><br>
-        <input type="email" name="email" value="{{ user[2] }}" required
+        <input type="email" name="email" value="{{ user[4] }}" required
             pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}" title="Please enter a valid email address"><br>
         <label for="password">Password</label><br>
         <input type="password" name="password" placeholder="Leave blank to keep current password"><br>
@@ -24,14 +24,16 @@
         <p class="success">{{ success }}</p>
         {% endif %}
     </form>
-    <div class="debug">
+    <br>
+    <button class="toggle-debug" onclick="document.querySelector('.debug').hidden = !document.querySelector('.debug').hidden;">Toggle Debug Info</button>
+    <div class="debug" hidden>
         <h2>Debug Information</h2>
         <p><strong>User ID:</strong> {{ user[0] }}</p>
         <p><strong>Username:</strong> {{ user[1] }}</p>
-        <p><strong>Email:</strong> {{ user[2] }}</p>
-        <p><strong>BattleTabs Token:</strong> {{ battletabs_token }}</p>
-        <p><strong>BattleTabs Username:</strong> {{ battletabs_username }}</p>
-        <p><strong>BattleTabs ID:</strong> {{ battletabs_id }}</p>
+        <p><strong>Email:</strong> {{ user[4] }}</p>
+        <p><strong>BattleTabs Token:</strong> <a href="#" onclick="alert('Your token is: {{user[5]}}')" >(show)</a></p>
+        <p><strong>BattleTabs Username:</strong> {{ user[7] }}</p>
+        <p><strong>BattleTabs ID:</strong> {{ user[6] }}</p>
         <p><strong>Flags:</strong> {{flags}}</p>
     </div>
 </div>

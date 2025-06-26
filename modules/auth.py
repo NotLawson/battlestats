@@ -42,7 +42,7 @@ def login(username, password):
         # Create a session for the user
         session_token = database.create_session(user, "Session created via login")
         return session_token
-    except IndexError:
+    except TypeError:
         return False
     
 def signup(username, password, email, battletabs_token, battletabs_id, battletabs_username, fleets):
