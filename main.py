@@ -325,7 +325,9 @@ def misc_home():
         user = database.get_user_by_id(id)
         if not user:
             return render_template("misc_index.html")
-        return render_template("misc_home.html", user=user)
+        stats = database.execute("SELECT * FROM stats WHERE user_id = %s ORDER BY time DESC", (id,))
+        runner.event({"type": "update_stats_for_user", "options": {"user_id": id}})
+        return render_template("misc_home.html", user=user, round=round, stats=stats if stats else None)
 
 @app.route("/news")
 def misc_news():
@@ -413,5 +415,5 @@ def api_ping():
 ## Starting the webserver
 if __name__ == "__main__":
     app.logger.info("Starting server on port %s", config.get("port", 5000))
-    app.run(host="0.0.0.0", port=config.get("port", 5000), debug=DEBUG)
+    app.run(host="0.0.0.0", port=config.get("port", 5000), debug=True)
     

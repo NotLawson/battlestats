@@ -2,4 +2,24 @@
 {% block content %}
 <div class="full">
     <h1 class="title">Welcome, {{user[1]}}</h1>
+    <p class="full">Uhh, this is kind of awkward...<br>
+    This page is still under construction, so there's not much to see here yet.<br>
+    In the meantime, I'll just chuck your latest stats here:
+    </p>
+    <ul>
+        {% if stats %}
+        <li>Wins: {{stats[1]}}</li>
+        <li>Losses: {{stats[2]}}</li>
+        <li>Winrate: {{round(stats[3], 2) * 100}}%</li>
+        <li>Games Played: {{stats[4]}}</li>
+        <li>League Trophies: {{stats[5]}}</li>
+        <li>Diamonds: {{stats[6]}}</li>
+        <li>Gold: {{stats[7]}}</li>
+        <li>Gems: {{stats[8]}}</li>
+        <li>Last updated: {{stats[9].strftime("%Y-%m-%d %H:%M:%S")}}</li>
+        <li>Updates when you refresh the page</li>
+        {% else %}
+        <li>No stats available yet. Wait a minute and refresh the page for your stats to update.</li>
+        {% endif %}
+    </ul>
 {% endblock %}

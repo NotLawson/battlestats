@@ -47,3 +47,8 @@ article {
 .title {
     text-align: center;
 }
+ul {
+    display: table;
+    margin: 0 auto;
+    text-align: left; /* or center, depending on your preference */
+}

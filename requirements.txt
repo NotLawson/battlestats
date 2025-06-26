@@ -3,3 +3,4 @@ redis
 influxdb
 gql[all]
 psycopg2-binary
+pytz
