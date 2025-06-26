@@ -1,0 +1,38 @@
+{% extends "main.html" %}
+{% block title %}<title>Account | BattleStats</title>{% endblock %}
+
+{% block head %}
+<!--Head-->
+{% endblock %}
+
+{% block content %}
+<h1 class="title">Account</h1>
+<div class="full">
+    <form method="post">
+        <label for="username">Username</label><br>
+        <input type="text" name="username" value="{{ user[1] }}" required><br>
+        <label for="email">Email</label><br>
+        <input type="email" name="email" value="{{ user[2] }}" required
+            pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}" title="Please enter a valid email address"><br>
+        <label for="password">Password</label><br>
+        <input type="password" name="password" placeholder="Leave blank to keep current password"><br>
+        <input type="submit" value="Update Account">
+        {% if error %}
+        <p class="error">{{ error }}</p>
+        {% endif %}
+        {% if success %}
+        <p class="success">{{ success }}</p>
+        {% endif %}
+    </form>
+    <div class="debug">
+        <h2>Debug Information</h2>
+        <p><strong>User ID:</strong> {{ user[0] }}</p>
+        <p><strong>Username:</strong> {{ user[1] }}</p>
+        <p><strong>Email:</strong> {{ user[2] }}</p>
+        <p><strong>BattleTabs Token:</strong> {{ battletabs_token }}</p>
+        <p><strong>BattleTabs Username:</strong> {{ battletabs_username }}</p>
+        <p><strong>BattleTabs ID:</strong> {{ battletabs_id }}</p>
+        <p><strong>Flags:</strong> {{flags}}</p>
+    </div>
+</div>
+{% endblock %}

@@ -210,25 +210,31 @@ def admin_news_create():
     #return render_template("admin_news_create.html")
     return render_template("not_built.html")
 ## Accounts
-@app.route("/account")
+@app.route("/account", methods=["GET", "POST", "DELETE"])
 def account_home():
     """
     Account home page. This will show the account information of the user.
     """
-    #return render_template("account_home.html")
-    return render_template("not_built.html")
-@app.route("/account/edit", methods=["GET", "POST", "DELETE"])
-def account_edit():
-    """
-    Account edit page. This will show a form to edit the account information of the user.
-    This will handle GET for the form, POST for the form submission and DELETE for deleting the account.
-    Upon deleting the account, the user will be logged out and redirected to the home page.
-    The database entry will be updated to remove the username, password, email, battletabs token and any other information.
-    Existing user stats will not be removed from the database, and the account will recieve ghost status. This allows for the user to remove their account
-    without disrupting the database or losing their stats.
-    """
-    #return render_template("account_edit.html")
-    return render_template("not_built.html")
+
+    id = auth.auth(request)
+    if not id:
+        return redirect("/account/login")
+    user = database.get_user_by_id(id)
+    if not user:
+        return redirect("/account/login")
+    flags = database.get_user_flags(id)
+    if request.method == "POST":
+        username = request.form.get("username")
+        email = request.form.get("email")
+        password = request.form.get("password", None)
+        try:
+            database.update_user(id, username, email, password)
+            app.logger.info("User %s updated their account information", username)
+            return render_template("account_home.html", user=user, flags=flags, success="Account information updated successfully.")
+        except Exception as e:
+            app.logger.error("Failed to update user %s account information. Reason: %s", username, e, exec_info=True)
+            return render_template("account_home.html", user=user, flags=flags, error="Failed to update account information. Please try again.")
+    return render_template("account_home.html", user=user, flags=flags)
 @app.route("/account/logout")
 def account_logout():
     """
@@ -316,18 +322,17 @@ def misc_home():
     This will switch between the home page when logged in and the index page when not logged in.
     This will show the latest news, updates and stats.
     """
-    #return render_template("misc_home.html")
-    app.logger.info("User is accessing the home page")
+
     id = auth.auth(request)
     if not id:
-        return render_template("misc_index.html")
+        return render_template("misc_index.html", title="Home")
     else:
         user = database.get_user_by_id(id)
         if not user:
-            return render_template("misc_index.html")
+            return render_template("misc_index.html", title="Home")
         stats = database.execute("SELECT * FROM stats WHERE user_id = %s ORDER BY time DESC", (id,))
         runner.event({"type": "update_stats_for_user", "options": {"user_id": id}})
-        return render_template("misc_home.html", user=user, round=round, stats=stats if stats else None)
+        return render_template("misc_home.html", title="Home", user=user, round=round, stats=stats if stats else None)
 
 @app.route("/news")
 def misc_news():

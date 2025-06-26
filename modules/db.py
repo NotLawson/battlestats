@@ -448,3 +448,26 @@ class Database:
 
         self.cursor.execute("INSERT INTO users (username, password, salt, email, token, battletabs_id, battletabs_username, fleets, flags, last_login, account_created) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", 
                                                (username, hash.hex(), salt.hex(), email, battletabs_token, battletabs_id, battletabs_username, fleets, flags, datetime.now(), datetime.now()))
+    def update_user(self, user_id, username=None, password=None, email=None):
+        if username:
+            self.cursor.execute("UPDATE users SET username = %s WHERE id = %s", (username, user_id))
+        if password:
+            salt, hash = hash_new_password(password)
+            self.cursor.execute("UPDATE users SET password = %s, salt = %s WHERE id = %s", (hash.hex(), salt.hex(), user_id))
+        if email:
+            self.cursor.execute("UPDATE users SET email = %s WHERE id = %s", (email, user_id))
+        
+    def get_user_flags(self, user_id):
+        '''
+        Gets the user flags from the database
+        '''
+        self.cursor.execute("SELECT flags FROM users WHERE id = %s", (user_id,))
+        data = self.cursor.fetchone()
+        if not data:
+            return None
+        return data[0]
+    def set_user_flags(self, user_id, flags):
+        '''
+        Sets the user flags in the database
+        '''
+        self.cursor.execute("UPDATE users SET flags = %s WHERE id = %s", (flags, user_id))

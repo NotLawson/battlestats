@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html>
     <head>
         <link rel="stylesheet" href="/static/css/login.css">
@@ -12,18 +11,19 @@
                     <p style="color:red;text-align: center;">{{ error }}</p>
                 {% endif %}
             </span>
-                <form action="/account/login" method="post">
-                    <label for="username">Username</label><br>
+            <form action="/account/login" method="post">
+                <div>
+                    <label for="username">Username</label>
                     <input type="text" name="username">
                     <br>
-                    <label for="password">Password</label><br>
+                    <label for="password">Password</label>
                     <input type="password" name="password">
                     <br><br>
                     <input id="login" type="submit" value="Login">
                     <br><br>
                     <a style="text-align: center;" href="/account/register">Register</a>
-                </form>
-            </span>
+                </div>
+            </form>
         </div>
     </body>
 </html>

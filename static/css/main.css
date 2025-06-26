@@ -1,3 +1,7 @@
+/* Main CSS file. */
+/* Used in most places */
+
+/* Navigation bar styles */
 .navbar {
     background-color: #333;
     color: #ffffff;
@@ -20,6 +24,7 @@
     background-color: #555;
 }
 
+/* Main content styles */
 body {
     background-color: #dddddd;
     font-family: Arial, Helvetica, sans-serif;
@@ -32,6 +37,28 @@ article {
     margin-left: 20%;
     margin-right: 20%;
 }
+ul, ol {
+    display: table;
+    margin: 0 auto;
+    text-align: left; /* or center, depending on your preference */
+}
+.success {
+    color: green;
+}
+.error {
+    color: red;
+}
+input[type="text"],
+input[type="password"],
+input[type="email"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 3px;
+    border: 1px solid #ccc;
+}
+
+/* Grid item definitions */
 .full {
     grid-column-start: 1;
     grid-column-end: 3;
@@ -47,8 +74,21 @@ article {
 .title {
     text-align: center;
 }
-ul {
-    display: table;
-    margin: 0 auto;
-    text-align: left; /* or center, depending on your preference */
+
+/* Button styles */
+button, 
+input[type="submit"], 
+input[type="button"] {
+    width: 100%;
+    padding: 10px;
+    background-color: #bebebe;
+    color: rgb(0, 0, 0);
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+button:hover, 
+input[type="submit"]:hover, 
+input[type="button"]:hover {
+    background-color: #858585;
 }

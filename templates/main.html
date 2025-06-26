@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html>
     <head>
+        {% block title %}
         {% if title %}
-        <title>{{ title }}</title>
+        <title>{{ title }} | BattleStats</title>
+        <!--Title Structure: "<title> | BattleStats"-->
         {% else %}
         <title>BattleStats</title>
         {% endif %}
+        {% endblock %}
         <link rel="icon" href="/static/images/favicon.png" type="image/png">
         <link rel="stylesheet" href="/static/css/main.css">
         {% block head %}
