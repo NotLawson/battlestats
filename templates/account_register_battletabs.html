@@ -51,6 +51,42 @@
                 document.getElementById("login-form").setAttribute("hidden", "true");
                 document.getElementById("user-confirm").removeAttribute("hidden");
             }
+            async function noLoginSubmit() {
+                document.getElementById("no-login-submit").disabled = true;
+                document.getElementById("no-login-submit").innerText = "Logging in...";
+
+                
+                token = document.querySelector('input[name="token"]').value;
+                if (!token) {
+                    document.querySelector('.error p').innerText = "Please enter a valid authToken.";
+                    document.getElementById("no-login-submit").disabled = false;
+                    document.getElementById("no-login-submit").innerText = "Submit";
+                    return;
+                }
+                var data = await fetch("/api/graphql", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": "Bearer " + token,
+                    },
+                    body: "query {me {id name}}"
+                }).then(response => {
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok");
+                    }
+                    return response.json();
+                }).catch(error => {
+                    console.error("There was a problem with the fetch operation:", error);
+                    document.querySelector('.error p').innerText = "Failed to fetch user data. Please try again.";
+                    document.getElementById("no-login-submit").disabled = false;
+                    document.getElementById("no-login-submit").innerText = "Login";
+                });
+                btusername = data.me.name;
+                id = data.me.id;
+                console.log("Logged in as " + btusername + " with ID " + id);
+                document.getElementById("name").innerText = btusername;
+                document.getElementById("no-details").setAttribute("hidden", "true");
+                document.getElementById("user-confirm").removeAttribute("hidden");
+            }
             async function confirm() {
                 document.getElementById("confirm").disabled = true;
                 window.opener.document.querySelector('input[name="battletabs_token"]').value = token;
@@ -58,6 +94,10 @@
                 window.opener.document.querySelector('input[name="battletabs_id"]').value = id;
                 window.opener.document.getElementById("update").click();
                 window.close();
+            }
+            async function token() {
+                document.getElementById("login-form").setAttribute("hidden", "true");
+                document.getElementById("no-details").removeAttribute("hidden");
             }
         </script>
     </head>
@@ -79,10 +119,42 @@
                     <input type="hidden" name="battletabs_id" value="{{ battletabs_id }}">
 
                     <button id="login" onclick="login()">Login</button>
+                    <br><br>
+                    <a href="#" onclick="token()">No login details?</a>
                 </div>
             <div id="user-confirm" hidden>
                 <h2>Hello, <span id="name"></span></h2>
                 <button id="confirm" onclick="confirm()">Let's go!</button>
+            </div>
+            <div id="no-details" hidden>
+                <h2>No email and password?</h2>
+                <p>To use BattleStats, you need an account for BattleTabs.</p>
+                <p>As of now, we need your username and password to get and authToken that allows us to grab your stats.</p>
+                <p>However, we can still get your authToken without your login details.</p>
+                <ol>
+                    <li>Go to <a href="https://battletabs.io">BattleTabs.io</a> and login</li>
+                    <li>Open your developer console, switch to the Network Tab, and filter by Socket. If you don't see a request named "graphql", try refreshing your page</li>
+                    <br><br>
+                    <img src="/static/images/loginTutorial/image1.png">
+                    <br><br>
+                    <li>Click into the "graphql" request and scroll to the very top.</li>
+                    <br><br>
+                    <img src="/static/images/loginTutorial/image2.png">
+                    <br><br>
+                    <li>Click into the very first message, and expand the payload.</li>
+                    <br><br>
+                    <img src="/static/images/loginTutorial/image3.png">
+                    <br><br>
+                    <li>Copy the value of the "authToken" field. That's your token. <strong>Make sure you copy the ENTIRE token. Three click to highlight.</strong></li>
+                    <br><br>
+                    <li>Paste it into the text box below and press the submit button</li>
+                    <br><br>
+                    <span class="error">
+                        <p style="color:red;text-align: center;"></p>
+                    </span>
+                    <input type="text" name="token" placeholder="Your authToken here">
+                    <button id="no-login-submit" onclick="noLoginSubmit()">Submit</button>
+                </ol>
             </div>
             <br>
             

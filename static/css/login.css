@@ -33,6 +33,16 @@ input[type="email"] {
     border-radius: 3px;
     border: 1px solid #ccc;
 }
+img {
+    width: 100%;
+    height: auto;
+    max-width: 500px;
+}
+ul, ol {
+    display: table;
+    margin: 0 auto;
+    text-align: left; /* or center, depending on your preference */
+}
 
 /* Button styles */
 button, 
