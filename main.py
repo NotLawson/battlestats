@@ -412,8 +412,18 @@ def stats_player_stats(username):
         return render_template("stats_player_stats.html", error="Player not found.")
     
     stats = database.execute("SELECT * FROM stats WHERE user_id = %s ORDER BY time DESC", (player[0],))
-    
-    return render_template("stats_player_stats.html", user=user, player=player, stats=stats if stats else None, round=round, now=datetime.now())
+    history = database.execute_fetch_all("SELECT * FROM stats WHERE user_id = %s and time > current_date - interval '30' day ORDER BY time DESC", (player[0],))
+
+    pub = []
+    for item in history:
+        date = item[9].strftime("%Y-%m-%d")
+        push = True
+        for pubItem in pub: 
+            if pubItem[9].strftime("%Y-%m-%d") == date: push = False
+        if push: pub.append(item)
+
+
+    return render_template("stats_player_stats.html", user=user, player=player, stats=stats if stats else None, history=pub, round=round, now=datetime.now())
 ## Fleets
 ## Clans
 
