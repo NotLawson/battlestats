@@ -1,0 +1,28 @@
+{% extends "main.html" %}
+{% block title %}<title>Players | BattleStats</title>{% endblock %}
+
+{% block head %}
+<!--Head-->
+{% endblock %}
+
+{% block content %}
+<div class="full">
+    <h1>Players</h1>
+    <form>
+        <input type="text" id="search" name="username" placeholder="Search players...">
+        <button id="search-button">Search</button>
+    </form>
+    <div id="player-list">
+        <!-- Player list will be populated here -->
+        {% if not users %}
+        <p>No players found.</p>
+        {% else %}
+        <ul>
+        {% for user in users %}
+        <li><a href="/player/{{user[1]}}">{{user[7]}}</a></li>
+        {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

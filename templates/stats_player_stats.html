@@ -1,0 +1,44 @@
+{% extends "main.html" %}
+{% block title %}<title>{{player[7]}} | BattleStats</title>{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/css/player.css">
+{% if stats %}
+<script defer>
+    const stats = {{ stats | tojson }};
+</script>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="full">
+    <h1>{{player[7]}}</h1>
+    <h2>Last seen: {{player[10].strftime("%Y-%m-%d %H:%M:%S")}} UTC ({{now - player[10]}})</h2>
+    {% if stats %}
+    <div class="stat_container">
+        <div>
+            <h3>Games</h3>
+            <p>Total: {{stats[4]}}</p>
+            <p>Wins: {{stats[1]}}</p>
+            <p>Losses: {{stats[2]}}</p>
+            <p>Win Rate: {{round(stats[3],2)*100}}%</p>
+        </div>
+        <div>
+            <h3>League</h3>
+            <p>Current League: {{stats[5]}}</p>
+            <p>Diamonds: {{stats[6]}}</p>
+        </div>
+        <div>
+            <h3>Currency</h3>
+            <p>Gold: {{stats[7]}}</p>
+            <p>Gems: {{stats[8]}}</p>
+        </div>
+    </div>
+    <div class="chart_container">
+        <canvas id="winrate"></canvas>
+        <canvas id="trophies"></canvas>
+    {% else %}
+    <p>No stats available for this player.</p>
+    {% endif %}
+</div>
+{% endblock %}

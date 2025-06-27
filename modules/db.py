@@ -361,6 +361,13 @@ class Database:
             return self.cursor.fetchone()
         except:
             return None
+    def execute_fetch_all(self, query, params=None):
+        self.cursor.execute(query, params)
+        try: 
+            return self.cursor.fetchall()
+        except:
+            return None
+
     def execute_many(self, query, params=None):
         self.cursor.executemany(query, params)
         try: 

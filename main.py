@@ -380,9 +380,41 @@ def maps():
     return render_template("not_built.html")
 
 ## Stats
+@app.route("/player")
+def stats_player():
+    """
+    Search page for players. This will allow users to search for players by their username.
+    """
+    id = auth.auth(request)
+    if id: user = database.get_user_by_id(id)
+    else: user = None
 
+    if request.args.get("username", False):
+        username = request.args.get("username")
+        users = database.execute_fetch_all("SELECT * FROM users WHERE username ILIKE %s or battletabs_username ILIKE %s", (username, username))
+        if not users:
+            return render_template("stats_player.html")
+        return render_template("stats_player.html", user=user, users=users)
+    return render_template("stats_player.html", user=user)  
+
+@app.route("/player/<username>")
+def stats_player_stats(username):
+    """
+    Player stats page. This will show the stats of a specific player.
+    This will show the player's stats, ships, skins and cosmetics.
+    """
+    id = auth.auth(request)
+    if id: user = database.get_user(id)
+    else: user = None
+
+    player = database.get_user_by_username(username)
+    if not player:
+        return render_template("stats_player_stats.html", error="Player not found.")
+    
+    stats = database.execute("SELECT * FROM stats WHERE user_id = %s ORDER BY time DESC", (player[0],))
+    
+    return render_template("stats_player_stats.html", user=user, player=player, stats=stats if stats else None, round=round, now=datetime.now())
 ## Fleets
-
 ## Clans
 
 ## API

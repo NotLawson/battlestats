@@ -1,0 +1,23 @@
+.stat_container {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    column-gap: 5px;
+}
+.stat_container > div {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 15px;
+    background-color: #ccc;
+}
+.chart_container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+
+@media (max-width: 768px) {
+    .stats_container {
+        grid-template-columns: 1fr 1fr;
+    }
+}
