@@ -423,7 +423,7 @@ def stats_player_stats(username):
         if push: pub.append(item)
 
 
-    return render_template("stats_player_stats.html", user=user, player=player, stats=stats if stats else None, history=pub, round=round, now=datetime.now())
+    return render_template("stats_player_stats.html", user=user, player=player, stats=stats if stats else None, history=pub, round=round, now=datetime.now(), int=int)
 ## Fleets
 ## Clans
 

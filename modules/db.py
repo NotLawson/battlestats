@@ -382,7 +382,9 @@ class Database:
         '''
         self.cursor.execute("UPDATE sessions SET last_used = %s WHERE token = %s", (datetime.now(), session_token))
         self.cursor.execute("SELECT  user_id FROM sessions WHERE token = %s", (session_token,))
-        return self.cursor.fetchone()
+        user = self.cursor.fetchone()
+        self.cursor.execute("UPDATE users SET last_login = %s WHERE id = %s", (datetime.now(), user[0]))
+        return user
     def create_session(self, user_id, name):
         '''
         Creates a session in the database

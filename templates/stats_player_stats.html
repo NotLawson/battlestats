@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <p>Total: {{stats[4]}}</p>
             <p>Wins: {{stats[1]}}</p>
             <p>Losses: {{stats[2]}}</p>
-            <p>Win Rate: {{round(stats[3]*100,0)}}%</p>
+            <p>Win Rate: {{int(round(stats[3]*100,0))}}%</p>
         </div>
         <div>
             <h3>League</h3>
