@@ -391,7 +391,7 @@ def stats_player():
 
     if request.args.get("username", False):
         username = request.args.get("username")
-        users = database.execute_fetch_all("SELECT * FROM users WHERE username ILIKE %s or battletabs_username ILIKE %s", (username, username))
+        users = database.execute_fetch_all("SELECT * FROM users WHERE username ILIKE %s or battletabs_username ILIKE %s", (f"%{username}%", f"%{username}%"))
         if not users:
             return render_template("stats_player.html")
         return render_template("stats_player.html", user=user, users=users)

@@ -48,7 +48,8 @@ document.addEventListener('DOMContentLoaded', function() {
 {% block content %}
 <div class="full">
     <h1>{{player[7]}}</h1>
-    <h3>Last seen: {{now - player[10]}} ago</h2>
+    <h3>Last seen: {{now - player[10]}} ago</h>
+    <h3><a href="https://battletabs.io/profile/{{player[6]}}">Open in BattleTabs</a></h3>
     {% if stats %}
     <div class="stat_container">
         <div>
