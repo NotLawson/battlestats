@@ -404,7 +404,7 @@ def stats_player_stats(username):
     This will show the player's stats, ships, skins and cosmetics.
     """
     id = auth.auth(request)
-    if id: user = database.get_user(id)
+    if id: user = database.get_user_by_id(id)
     else: user = None
 
     player = database.get_user_by_username(username)
