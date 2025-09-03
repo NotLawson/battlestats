@@ -257,7 +257,7 @@ class Runner:
             battle_id = task["options"]["replay_id"]
 
             client = UnAuthBattleTabsClient()
-            raw = client.raw_query('battle(id: "' + battle_id + '") {id events players {id name} finishedAt winner {id name}}')
+            raw = client.raw_query('battle(id: "' + battle_id + '") {id matchKind settings events players {id name} finishedAt winner {id name}}')
             players = []
             for player in raw["battle"]["players"]:
                 players.append(player["id"])
