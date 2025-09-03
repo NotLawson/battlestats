@@ -264,7 +264,7 @@ class Runner:
             winner = raw["battle"]["winner"]["id"]
 
             # end time
-            finishedAt = raw["battle"]["finishedAt"]
+            finishedAt = datetime.fromtimestamp(raw["battle"]["finishedAt"])
 
             # detect battle type
             if raw["battle"]["matchKind"] == "ranked": ranked = True
