@@ -327,7 +327,6 @@ class Database:
         #   - short: The battle was short.
         #   - long: The battle was long.
         # - ranked: The battle was a ranked battle. This is a boolean value.
-        # - start_time: The time the battle started.
         # - end_time: The time the battle ended.
         # - turns: The amount of turns the battle lasted.
         self.logger.info("Setting up battles table...")
@@ -345,9 +344,9 @@ class Database:
                         map text,
                         type text,
                         ranked boolean,
-                        start_time timestamp,
                         end_time timestamp,
-                        turns integer
+                        turns integer,
+                        data text
                         )
             ''')
             self.logger.info("Battles table created")

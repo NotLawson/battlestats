@@ -254,7 +254,30 @@ class Runner:
             self.database.execute("UPDATE users SET inventory = %s, skins = %s, ships = %s WHERE id = %s", (items, skins, ships, user_id))
             
         elif task["type"] == "process_battle":
-            pass
+            battle_id = task["options"]["battle_id"]
+
+            client = UnAuthBattleTabsClient()
+            raw = client.raw_query('{battle(id: ' + battle_id + ') {id events players {id name} finishedAt winner {id name}}}')["data"]
+            players = []
+            for player in raw["battle"]["players"]:
+                players.append(player["id"])
+            winner = raw["battle"]["winner"]["id"]
+
+            # end time
+            finishedAt = raw["battle"]["finishedAt"]
+
+            # detect battle type
+            if raw["battle"]["matchKind"] == "ranked": ranked = True
+            else: ranked = False
+            if raw["battle"]["settings"]["maxTurnTimeSeconds"] == 30: battletype = "short"
+            else: battletype = "long"
+
+            # fleets
+            # no info on fleets yet :)
+
+            # insert into db
+            self.database.execute("INSERT INTO battles (id, first_player_id, second_player_id, winner_id, type, ranked, end_time, data) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)", (raw["battle"]["id"], players[0], players[1], winner, battletype, ranked, finishedAt, json.dumps(raw["battle"])))
+
         elif task["type"] == "recalculate_stats_for_fleet":
             pass
         elif task["type"] == "exit":
@@ -280,6 +303,8 @@ class Runner:
                     "state":"exited",
                     "since":datetime.now()
                 }))
+            
+        time.sleep(0.5) # sleep
 class Manager:
     runners = []
     queues = []
