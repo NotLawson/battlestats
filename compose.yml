@@ -33,7 +33,7 @@ services:
     restart: always
     command: redis-server
 
-  battleTabsLive:
+  battletabslive:
     build:
       context: .
       dockerfile: liveDockerfile
