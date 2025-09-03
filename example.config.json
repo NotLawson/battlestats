@@ -7,5 +7,7 @@
         "port": 5432
     },
     "secret_key": "secret_key",
+    "discord_token": "discord_token",
     "init_runner_scale":2
+    
 }

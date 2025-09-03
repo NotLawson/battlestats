@@ -1,0 +1,12 @@
+FROM python:3.11-slim
+
+WORKDIR /usr/live
+
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+
+COPY modules modules
+COPY battleTabsLive.py .
+COPY config.json .
+
+CMD ["python3", "-u", "battleTabsLive.py"]

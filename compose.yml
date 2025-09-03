@@ -32,3 +32,9 @@ services:
     hostname: systems
     restart: always
     command: redis-server
+
+  battleTabsLive:
+    build:
+      context: .
+      dockerfile: liveDockerfile
+    restart: always
