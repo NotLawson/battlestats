@@ -331,9 +331,22 @@ def misc_home():
         user = database.get_user_by_id(id)
         if not user:
             return render_template("misc_index.html", title="Home")
-        stats = database.execute("SELECT * FROM stats WHERE user_id = %s ORDER BY time DESC", (id,))
         runner.event({"type": "update_stats_for_user", "options": {"user_id": id}})
-        return render_template("misc_home.html", title="Home", user=user, round=round, stats=stats if stats else None)
+
+        time.sleep(0.1)  # Give the runner some time to update stats
+
+        stats = database.execute("SELECT * FROM stats WHERE user_id = %s ORDER BY time DESC", (user[0],))
+        history = database.execute_fetch_all("SELECT * FROM stats WHERE user_id = %s and time > current_date - interval '30' day ORDER BY time DESC", (user[0],))
+
+        pub = []
+        for item in history:
+            date = item[9].strftime("%Y-%m-%d")
+            push = True
+            for pubItem in pub: 
+                if pubItem[9].strftime("%Y-%m-%d") == date: push = False
+            if push: pub.append(item)
+
+        return render_template("misc_home.html", title="Home", user=user, round=round, int=int, stats=stats if stats else None, history=pub, now=datetime.now())
 
 @app.route("/news")
 def misc_news():
@@ -391,7 +404,7 @@ def stats_player():
 
     if request.args.get("username", False):
         username = request.args.get("username")
-        users = database.execute_fetch_all("SELECT * FROM users WHERE username ILIKE %s or battletabs_username ILIKE %s", (username, username))
+        users = database.execute_fetch_all("SELECT * FROM users WHERE username ILIKE %s or battletabs_username ILIKE %s", (f"%{username}%", f"%{username}%"))
         if not users:
             return render_template("stats_player.html")
         return render_template("stats_player.html", user=user, users=users)
@@ -404,16 +417,29 @@ def stats_player_stats(username):
     This will show the player's stats, ships, skins and cosmetics.
     """
     id = auth.auth(request)
-    if id: user = database.get_user(id)
+    if id: user = database.get_user_by_id(id)
     else: user = None
 
     player = database.get_user_by_username(username)
     if not player:
         return render_template("stats_player_stats.html", error="Player not found.")
+    runner.event({"type": "update_stats_for_user", "options": {"user_id": player[0]}})
+
+    time.sleep(0.1)  # Give the runner some time to update stats
     
     stats = database.execute("SELECT * FROM stats WHERE user_id = %s ORDER BY time DESC", (player[0],))
-    
-    return render_template("stats_player_stats.html", user=user, player=player, stats=stats if stats else None, round=round, now=datetime.now())
+    history = database.execute_fetch_all("SELECT * FROM stats WHERE user_id = %s and time > current_date - interval '30' day ORDER BY time DESC", (player[0],))
+
+    pub = []
+    for item in history:
+        date = item[9].strftime("%Y-%m-%d")
+        push = True
+        for pubItem in pub: 
+            if pubItem[9].strftime("%Y-%m-%d") == date: push = False
+        if push: pub.append(item)
+
+
+    return render_template("stats_player_stats.html", user=user, player=player, stats=stats if stats else None, history=pub, round=round, now=datetime.now(), int=int)
 ## Fleets
 ## Clans
 

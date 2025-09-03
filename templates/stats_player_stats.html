@@ -2,10 +2,44 @@
 {% block title %}<title>{{player[7]}} | BattleStats</title>{% endblock %}
 
 {% block head %}
-<link rel="stylesheet" href="/static/css/player.css">
+<script src="/static/js/chart.js"></script>
 {% if stats %}
 <script defer>
-    const stats = {{ stats | tojson }};
+document.addEventListener('DOMContentLoaded', function() {
+    const data = {{ history | tojson }}.reverse();
+    const winrateCanvas = document.getElementById('winrate');
+    const trophiesCanvas = document.getElementById('trophies');
+    var winrateData = [];
+    var trophiesData = [];
+    var timestamps = [];
+    data.forEach((item) => {
+        winrateData.push(Math.round(item[3]*100));
+        trophiesData.push(item[5]);
+        timestamps.push(item[9]);
+    });
+    new Chart(winrateCanvas, {
+        type: 'line',
+        data: {
+            labels: timestamps,
+            datasets: [{
+                label: 'Win Rate (%)',
+                data: winrateData,
+                borderWidth: 1
+            }]
+        }
+    });
+    new Chart(trophiesCanvas, {
+        type: 'line',
+        data: {
+            labels: timestamps,
+            datasets: [{
+                label: 'Trophies',
+                data: trophiesData,
+                borderWidth: 1
+            }]
+        }
+    });
+});
 </script>
 {% endif %}
 {% endblock %}
@@ -13,7 +47,8 @@
 {% block content %}
 <div class="full">
     <h1>{{player[7]}}</h1>
-    <h2>Last seen: {{player[10].strftime("%Y-%m-%d %H:%M:%S")}} UTC ({{now - player[10]}})</h2>
+    <h3>Last seen: {{now - player[10]}} ago</h>
+    <h3><a href="https://battletabs.io/profile/{{player[6]}}">Open in BattleTabs</a></h3>
     {% if stats %}
     <div class="stat_container">
         <div>
@@ -21,7 +56,7 @@
             <p>Total: {{stats[4]}}</p>
             <p>Wins: {{stats[1]}}</p>
             <p>Losses: {{stats[2]}}</p>
-            <p>Win Rate: {{round(stats[3],2)*100}}%</p>
+            <p>Win Rate: {{int(round(stats[3]*100,0))}}%</p>
         </div>
         <div>
             <h3>League</h3>
@@ -35,8 +70,12 @@
         </div>
     </div>
     <div class="chart_container">
-        <canvas id="winrate"></canvas>
-        <canvas id="trophies"></canvas>
+        <div>
+            <canvas id="winrate"></canvas>
+        </div>
+        <div>
+            <canvas id="trophies"></canvas>
+        </div>
     {% else %}
     <p>No stats available for this player.</p>
     {% endif %}

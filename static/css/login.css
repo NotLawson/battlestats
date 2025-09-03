@@ -67,9 +67,7 @@ input[type="button"]:hover {
     text-align: center;
     margin-top: 10px;
 }
-/* ...existing code... */
 #register-form > div {
     max-width: 400px;
     margin: 0 auto;
 }
-/* ...existing code... */
