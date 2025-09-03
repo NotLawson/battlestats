@@ -254,7 +254,7 @@ class Runner:
             self.database.execute("UPDATE users SET inventory = %s, skins = %s, ships = %s WHERE id = %s", (items, skins, ships, user_id))
             
         elif task["type"] == "process_battle":
-            battle_id = task["options"]["battle_id"]
+            battle_id = task["options"]["replay_id"]
 
             client = UnAuthBattleTabsClient()
             raw = client.raw_query('{battle(id: ' + battle_id + ') {id events players {id name} finishedAt winner {id name}}}')["data"]
